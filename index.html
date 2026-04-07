@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>体重管理アプリ</title>
-  <meta name="description" content="社員体重管理アプリ">
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,88 +12,89 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #0f0f1a;
-      --surface: #1a1a2e;
-      --surface2: #22223b;
-      --accent: #7c6af7;
-      --accent2: #4cc9a0;
-      --warn: #f59e0b;
-      --danger: #f43f5e;
-      --text: #f0f0ff;
-      --text2: #9898b8;
-      --text3: #5a5a7a;
-      --border: rgba(255,255,255,0.08);
-      --radius: 16px;
-      --radius-sm: 10px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; }
-    body { font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
-    .header { padding: env(safe-area-inset-top, 0) 0 0; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
-    .header-title { font-size: 18px; font-weight: 700; }
-    .header-title span { color: var(--accent); }
-    .tab-bar { display: flex; padding: 0 20px 12px; gap: 6px; }
-    .tab { flex: 1; padding: 7px 0; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text2); font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; }
-    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .pages { flex: 1; overflow: hidden; position: relative; }
-    .page { position: absolute; inset: 0; overflow-y: auto; padding: 16px 20px; display: none; }
-    .page.active { display: block; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
-    .card-title { font-size: 11px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
-    .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-    .metric-card { background: var(--surface2); border-radius: 10px; padding: 12px 8px; text-align: center; }
-    .metric-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
-    .metric-value { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; line-height: 1; }
-    .metric-unit { font-size: 10px; color: var(--text3); margin-top: 2px; }
-    .metric-value.good { color: var(--accent2); }
-    .metric-value.warn { color: var(--warn); }
-    .metric-value.bad { color: var(--danger); }
-    .emp-select-wrap { margin-bottom: 14px; }
-    .emp-select-wrap label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 6px; text-transform: uppercase; }
-    select { width: 100%; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Noto Sans JP', sans-serif; font-size: 15px; appearance: none; }
-    .form-row { margin-bottom: 12px; }
-    .form-row label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 5px; text-transform: uppercase; }
-    input[type="date"], input[type="number"], input[type="text"] { width: 100%; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Noto Sans JP', sans-serif; font-size: 15px; color-scheme: dark; }
-    .btn { width: 100%; padding: 13px; border: none; border-radius: 10px; font-family: 'Noto Sans JP', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; }
-    .btn-primary { background: var(--accent); color: #fff; }
-    .btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
-    #weight-chart { width: 100%; height: auto; display: block; }
-    .history-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .history-item:last-child { border-bottom: none; }
-    .history-date { font-size: 13px; color: var(--text2); }
-    .history-weight { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; }
-    .history-delta { font-family: 'DM Mono', monospace; font-size: 12px; }
-    .history-del { background: none; border: 1px solid var(--border); color: var(--text3); border-radius: 6px; padding: 3px 8px; font-size: 11px; cursor: pointer; }
-    .admin-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-    .admin-row:last-child { border-bottom: none; }
-    .admin-name { font-size: 14px; font-weight: 500; }
-    .admin-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-    .admin-weight { font-family: 'DM Mono', monospace; font-size: 14px; text-align: right; }
-    .admin-diff { font-family: 'DM Mono', monospace; font-size: 12px; text-align: right; }
-    .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
-    .badge-good { background: rgba(76,201,160,0.15); color: var(--accent2); }
-    .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
-    .badge-bad { background: rgba(244,63,94,0.15); color: var(--danger); }
-    .badge-none { background: var(--surface2); color: var(--text3); }
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--accent); color: #fff; padding: 10px 24px; border-radius: 100px; font-size: 13px; font-weight: 500; opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 100; white-space: nowrap; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .empty { text-align: center; padding: 32px 0; color: var(--text3); font-size: 13px; }
-    .add-emp-row { display: flex; gap: 8px; }
-    .add-emp-row input { flex: 1; }
-    .add-emp-row .btn { width: auto; padding: 11px 20px; }
+    :root{--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223b;--accent:#7c6af7;--accent2:#4cc9a0;--warn:#f59e0b;--danger:#f43f5e;--text:#f0f0ff;--text2:#9898b8;--text3:#5a5a7a;--border:rgba(255,255,255,0.08);--radius:16px;--radius-sm:10px;}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    html,body{height:100%;overflow:hidden;}
+    body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+    .header{padding:env(safe-area-inset-top,0) 0 0;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;}
+    .header-title{font-size:18px;font-weight:700;}
+    .header-title span{color:var(--accent);}
+    .tab-bar{display:flex;padding:0 20px 12px;gap:6px;}
+    .tab{flex:1;padding:7px 0;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+    .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .pages{flex:1;overflow:hidden;position:relative;}
+    .page{position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0) + 16px);display:none;-webkit-overflow-scrolling:touch;}
+    .page.active{display:block;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+    .card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+    .metric-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+    .metric-label{font-size:10px;color:var(--text3);margin-bottom:4px;}
+    .metric-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;line-height:1;}
+    .metric-unit{font-size:10px;color:var(--text3);margin-top:2px;}
+    .metric-value.good{color:var(--accent2);}
+    .metric-value.warn{color:var(--warn);}
+    .metric-value.bad{color:var(--danger);}
+    .emp-select-wrap{margin-bottom:14px;}
+    .emp-select-wrap label{font-size:11px;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+    select{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239898b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+    .form-row{margin-bottom:12px;}
+    .form-row label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
+    input[type="date"],input[type="number"],input[type="text"],input[type="password"],textarea{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;color-scheme:dark;}
+    textarea{resize:vertical;min-height:80px;line-height:1.6;}
+    input:focus,textarea:focus{outline:none;border-color:var(--accent);}
+    .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
+    .btn:active{opacity:0.8;transform:scale(0.98);}
+    .btn-primary{background:var(--accent);color:#fff;}
+    .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+    .btn-danger{background:rgba(244,63,94,0.15);color:var(--danger);border:1px solid rgba(244,63,94,0.3);}
+    .btn-sm{padding:6px 12px;width:auto;font-size:12px;}
+    #weight-chart{width:100%;height:auto;display:block;}
+    .history-item{padding:12px 0;border-bottom:1px solid var(--border);}
+    .history-item:last-child{border-bottom:none;}
+    .history-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
+    .history-date{font-size:13px;color:var(--text2);}
+    .history-weight{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;}
+    .history-comment{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6;font-style:italic;padding:8px 10px;background:var(--surface2);border-radius:8px;}
+    .history-del{background:none;border:1px solid var(--border);color:var(--text3);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;flex-shrink:0;}
+    .late-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:rgba(245,158,11,0.15);color:var(--warn);margin-left:6px;}
+    .admin-row{padding:12px 0;border-bottom:1px solid var(--border);}
+    .admin-row:last-child{border-bottom:none;}
+    .admin-row-top{display:flex;align-items:center;justify-content:space-between;}
+    .admin-name-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .admin-name{font-size:14px;font-weight:500;}
+    .admin-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+    .admin-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .admin-weight{font-family:'DM Mono',monospace;font-size:13px;text-align:right;}
+    .badge{display:inline-block;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap;}
+    .badge-good{background:rgba(76,201,160,0.15);color:var(--accent2);}
+    .badge-warn{background:rgba(245,158,11,0.15);color:var(--warn);}
+    .badge-bad{background:rgba(244,63,94,0.15);color:var(--danger);}
+    .badge-none{background:var(--surface2);color:var(--text3);}
+    .badge-missing{background:rgba(244,63,94,0.15);color:var(--danger);}
+    .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 24px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:500;opacity:0;transition:all 0.25s;pointer-events:none;z-index:200;white-space:nowrap;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px;}
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .profile-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;}
+    .profile-item-label{font-size:10px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;}
+    .profile-item-value{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;}
+    .deadline-info{font-size:12px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:12px;line-height:1.5;}
+    .deadline-info.late{color:var(--warn);}
+    .deadline-info.ok{color:var(--text3);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   </style>
 </head>
 <body>
 <div class="header">
   <div class="header-inner">
     <div class="header-title">体重<span>管理</span></div>
-    <div style="font-size:12px;color:var(--text3);">ローカル保存</div>
+    <div style="font-size:11px;color:var(--text3);" id="jp-time"></div>
   </div>
   <div class="tab-bar">
-    <button class="tab active" onclick="showPage('employee', this)">社員</button>
-    <button class="tab" onclick="showPage('admin', this)">管理者</button>
+    <button class="tab active" onclick="showPage('employee',this)">社員</button>
+    <button class="tab" onclick="showPage('admin',this)">管理者</button>
   </div>
 </div>
 <div class="pages">
@@ -104,51 +104,97 @@
       <select id="emp-select" onchange="loadEmployee()"></select>
     </div>
     <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-label">現在</div><div class="metric-value" id="cur-weight">--</div><div class="metric-unit">kg</div></div>
-      <div class="metric-card"><div class="metric-label">目標</div><div class="metric-value" id="goal-weight">--</div><div class="metric-unit">kg</div></div>
-      <div class="metric-card"><div class="metric-label">差分</div><div class="metric-value" id="diff-weight">--</div><div class="metric-unit">kg</div></div>
+      <div class="metric-card"><div class="metric-label">現在体重</div><div class="metric-value" id="cur-weight">--</div><div class="metric-unit">kg</div></div>
+      <div class="metric-card"><div class="metric-label">BMI</div><div class="metric-value" id="cur-bmi">--</div><div class="metric-unit" id="bmi-label">--</div></div>
+      <div class="metric-card"><div class="metric-label">目標まで</div><div class="metric-value" id="diff-weight">--</div><div class="metric-unit">kg</div></div>
     </div>
+    <div class="card" id="profile-card"></div>
     <div class="card">
       <div class="card-title">体重を記録</div>
-      <div class="form-row"><label>日付</label><input type="date" id="record-date"></div>
-      <div class="form-row"><label>体重 (kg)</label><input type="number" id="record-weight" step="0.1" min="30" max="200" placeholder="68.5"></div>
+      <div id="deadline-info" class="deadline-info ok"></div>
+      <div class="form-row"><label>体重 (kg)</label><input type="number" id="record-weight" step="0.1" min="30" max="200" placeholder="例: 68.5"></div>
+      <div class="form-row"><label>今月の一言コメント（取り組みなど）</label><textarea id="record-comment" placeholder="例: 毎朝ウォーキングを続けました。"></textarea></div>
       <button class="btn btn-primary" onclick="addRecord()">記録する</button>
     </div>
-    <div class="card">
-      <div class="card-title">目標体重</div>
-      <div class="form-row"><label>目標 (kg)</label><input type="number" id="goal-input" step="0.1" min="30" max="200" placeholder="65.0"></div>
-      <button class="btn btn-secondary" onclick="setGoal()">目標を更新</button>
-    </div>
-    <div class="card"><div class="card-title">体重推移</div><svg id="weight-chart" viewBox="0 0 340 160"></svg></div>
+    <div class="card"><div class="card-title">体重推移グラフ</div><svg id="weight-chart" viewBox="0 0 340 160"></svg></div>
     <div class="card"><div class="card-title">記録履歴</div><div id="history-list"></div></div>
   </div>
   <div id="page-admin" class="page">
-    <div class="card">
-      <div class="card-title">社員を追加</div>
-      <div class="add-emp-row"><input type="text" id="new-emp-name" placeholder="氏名を入力"><button class="btn btn-primary" onclick="addEmployee()">追加</button></div>
+    <div id="admin-locked">
+      <div class="card" style="text-align:center;padding:40px 16px;">
+        <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px;">管理者専用エリア</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:24px;">園田さん専用のページです</div>
+        <div class="form-row"><input type="password" id="admin-pw-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')checkAdminPw()"></div>
+        <button class="btn btn-primary" onclick="checkAdminPw()">ログイン</button>
+      </div>
     </div>
-    <div class="card"><div class="card-title">全社員 体重一覧</div><div id="admin-list"></div></div>
+    <div id="admin-unlocked" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:13px;color:var(--accent);font-weight:500;">✓ 管理者モード</div>
+        <button class="btn btn-secondary btn-sm" onclick="lockAdmin()">ログアウト</button>
+      </div>
+      <div class="card"><div class="card-title">全社員 体重一覧</div><div id="admin-list"></div></div>
+      <div id="edit-emp-card" style="display:none;" class="card">
+        <div class="card-title">社員情報を編集</div>
+        <input type="hidden" id="edit-emp-id">
+        <div class="form-row"><label>氏名</label><input type="text" id="edit-emp-name"></div>
+        <div class="two-col">
+          <div class="form-row"><label>年齢</label><input type="number" id="edit-emp-age" min="18" max="80"></div>
+          <div class="form-row"><label>身長 (cm)</label><input type="number" id="edit-emp-height" min="140" max="220"></div>
+        </div>
+        <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="edit-emp-goal" step="0.1"></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="cancelEdit()">キャンセル</button>
+          <button class="btn btn-primary" onclick="saveEdit()">保存する</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">社員を追加</div>
+        <div class="form-row"><label>氏名</label><input type="text" id="new-emp-name" placeholder="例: 園田 伸宏"></div>
+        <div class="two-col">
+          <div class="form-row"><label>年齢</label><input type="number" id="new-emp-age" placeholder="35" min="18" max="80"></div>
+          <div class="form-row"><label>身長 (cm)</label><input type="number" id="new-emp-height" placeholder="170" min="140" max="220"></div>
+        </div>
+        <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="new-emp-goal" placeholder="65.0" step="0.1"></div>
+        <button class="btn btn-primary" onclick="addEmployee()">追加する</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const STORAGE_KEY='weight_app_v2';
+const STORAGE_KEY='weight_app_v3';
+const ADMIN_PW='nagi1234';
+function getJPTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));}
+function updateClock(){const now=getJPTime();const str=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});document.getElementById('jp-time').textContent='日本時間 '+str;}
+updateClock();setInterval(updateClock,60000);
+function getThisMonthDeadlines(){const now=getJPTime();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');return[`${y}-${m}-01`,`${y}-${m}-15`];}
+function getNextDeadline(){const now=getJPTime();const d=now.getDate();const y=now.getFullYear();const m=now.getMonth()+1;if(d<15)return`${y}-${String(m).padStart(2,'0')}-15`;const nm=m===12?1:m+1;const ny=m===12?y+1:y;return`${ny}-${String(nm).padStart(2,'0')}-01`;}
 function loadData(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultData();}catch(e){return defaultData();}}
-function defaultData(){return{employees:[{id:1,name:'田中 太郎',goal:70,records:[{date:'2025-12-01',weight:75.2},{date:'2026-01-01',weight:74.5},{date:'2026-02-01',weight:73.8},{date:'2026-03-01',weight:73.1}]},{id:2,name:'佐藤 花子',goal:58,records:[{date:'2025-12-01',weight:62.5},{date:'2026-01-01',weight:61.8},{date:'2026-02-01',weight:61.2},{date:'2026-03-01',weight:60.5}]},{id:3,name:'鈴木 一郎',goal:75,records:[{date:'2025-12-01',weight:80.1},{date:'2026-01-01',weight:79.0},{date:'2026-02-01',weight:78.5},{date:'2026-03-01',weight:77.8}]}],nextId:4};}
+function defaultData(){return{employees:[{id:1,name:'社員 01',age:30,height:165,goal:60,records:[]},{id:2,name:'社員 02',age:32,height:170,goal:65,records:[]},{id:3,name:'社員 03',age:28,height:168,goal:63,records:[]},{id:4,name:'社員 04',age:35,height:172,goal:68,records:[]},{id:5,name:'社員 05',age:40,height:160,goal:58,records:[]},{id:6,name:'社員 06',age:27,height:175,goal:70,records:[]},{id:7,name:'社員 07',age:33,height:163,goal:60,records:[]},{id:8,name:'社員 08',age:38,height:178,goal:75,records:[]},{id:9,name:'社員 09',age:29,height:167,goal:62,records:[]},{id:10,name:'社員 10',age:42,height:173,goal:72,records:[]}],nextId:11};}
 function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
-function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function calcBMI(w,hcm){const h=hcm/100;return(w/(h*h)).toFixed(1);}
+function bmiLabel(b){const v=parseFloat(b);if(v<18.5)return'低体重';if(v<25)return'普通';if(v<30)return'肥満1度';return'肥満2度+';}
+function bmiClass(b){const v=parseFloat(b);if(v<18.5)return'warn';if(v<25)return'good';return'bad';}
+function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 let currentEmpId=null;
-function init(){document.getElementById('record-date').value=new Date().toISOString().split('T')[0];populateSelect();loadEmployee();}
+function init(){populateSelect();loadEmployee();}
 function populateSelect(){const data=loadData();const sel=document.getElementById('emp-select');sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');if(!currentEmpId&&data.employees.length)currentEmpId=data.employees[0].id;sel.value=currentEmpId;}
-function loadEmployee(){currentEmpId=parseInt(document.getElementById('emp-select').value);const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';document.getElementById('goal-weight').textContent=emp.goal?emp.goal.toFixed(1):'--';const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}document.getElementById('goal-input').value=emp.goal||'';renderChart(recs,emp.goal);renderHistory(recs);}
-function addRecord(){const d=document.getElementById('record-date').value;const w=parseFloat(document.getElementById('record-weight').value);if(!d||isNaN(w)||w<30||w>200){showToast('入力を確認してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const idx=emp.records.findIndex(r=>r.date===d);if(idx>=0)emp.records[idx].weight=w;else emp.records.push({date:d,weight:w});saveData(data);document.getElementById('record-weight').value='';showToast('記録しました');loadEmployee();}
-function setGoal(){const g=parseFloat(document.getElementById('goal-input').value);if(isNaN(g)||g<30||g>200){showToast('目標体重を確認してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);emp.goal=g;saveData(data);showToast('目標を更新しました');loadEmployee();}
+function loadEmployee(){currentEmpId=parseInt(document.getElementById('emp-select').value);const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}const deadlines=getThisMonthDeadlines();const now=getJPTime();let msg='';let isLate=false;for(const dl of deadlines){const dlDate=new Date(dl+'T00:00:00');const hasRec=recs.some(r=>r.date===dl);if(!hasRec&&now>dlDate){msg=`⚠️ ${dl.replace(/-/g,'/')} の記録がまだです（遅延）`;isLate=true;break;}}if(!msg){const next=getNextDeadline();msg=`次の記録日: ${next.replace(/-/g,'/')}`;}const dlEl=document.getElementById('deadline-info');dlEl.textContent=msg;dlEl.className='deadline-info '+(isLate?'late':'ok');renderChart(recs,emp.goal);renderHistory(recs,emp);}
+function addRecord(){const w=parseFloat(document.getElementById('record-weight').value);const comment=document.getElementById('record-comment').value.trim();if(isNaN(w)||w<30||w>200){showToast('体重を正しく入力してください','var(--danger)');return;}const now=getJPTime();const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;const d=now.getDate();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');let targetDate=todayStr;let lateFlag=false;const deadlines=getThisMonthDeadlines();if(deadlines.includes(todayStr)){targetDate=todayStr;}else if(d>1&&d<=4){targetDate=`${y}-${m}-01`;lateFlag=true;}else if(d>15&&d<=18){targetDate=`${y}-${m}-15`;lateFlag=true;}else{targetDate=getNextDeadline();}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const idx=emp.records.findIndex(r=>r.date===targetDate);const record={date:targetDate,weight:w,comment,late:lateFlag,recordedAt:todayStr};if(idx>=0)emp.records[idx]=record;else emp.records.push(record);saveData(data);document.getElementById('record-weight').value='';document.getElementById('record-comment').value='';showToast(lateFlag?'記録しました（遅延扱い）':'記録しました！');loadEmployee();}
 function deleteRecord(date){if(!confirm('この記録を削除しますか？'))return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);emp.records=emp.records.filter(r=>r.date!==date);saveData(data);loadEmployee();}
-function renderHistory(recs){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'+':'')+delta.toFixed(1)+' kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent2)':delta>0?'var(--warn)':'var(--text3)'):'';const dateStr=r.date.replace(/-/g,'/');return`<div class="history-item"><div><div class="history-date">${dateStr}</div>${deltaStr?`<div class="history-delta" style="color:${deltaColor}">${deltaStr}</div>`:''}</div><div style="display:flex;align-items:center;gap:10px"><div class="history-weight">${r.weight.toFixed(1)} kg</div><button class="history-del" onclick="deleteRecord('${r.date}')">削除</button></div></div>`;}).join('');}
-function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-10);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#5a5a7a">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=16,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#5a5a7a">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const areaBottom=y(minW);const areaPath=`M${x(0).toFixed(1)},${areaBottom} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${areaBottom} Z`;let goalLine='';if(goal){const gy=y(goal).toFixed(1);goalLine=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#4cc9a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#4cc9a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="#7c6af7"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1)return'';const mo=r.date.slice(5,7)+'/'+r.date.slice(8,10);return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#5a5a7a">${mo}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6af7" stop-opacity="0.25"/><stop offset="100%" stop-color="#7c6af7" stop-opacity="0"/></linearGradient></defs>${grid}${goalLine}<path d="${areaPath}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#7c6af7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
+function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent2)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;const lateBadge=r.late?'<span class="late-badge">遅延</span>':'';const recAt=r.recordedAt&&r.recordedAt!==r.date?`<span style="font-size:10px;color:var(--text3);"> (${r.recordedAt.replace(/-/g,'/')}入力)</span>`:'';return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${lateBadge}${recAt}${deltaStr?`<span style="font-size:12px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div style="display:flex;align-items:center;gap:8px;"><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div><button class="history-del" onclick="deleteRecord('${r.date}')">削除</button></div></div>${r.comment?`<div class="history-comment">"${r.comment}"</div>`:''}</div>`;}).join('');}
+function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#5a5a7a">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=20,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#5a5a7a">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const ab=y(minW);const ap=`M${x(0).toFixed(1)},${ab} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${ab} Z`;let gl='';if(goal){const gy=y(goal).toFixed(1);gl=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#4cc9a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#4cc9a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="${r.late?'#f59e0b':'#7c6af7'}"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1&&i%2!==0)return'';return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#5a5a7a">${r.date.slice(5,7)+'/'+r.date.slice(8,10)}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6af7" stop-opacity="0.25"/><stop offset="100%" stop-color="#7c6af7" stop-opacity="0"/></linearGradient></defs>${grid}${gl}<path d="${ap}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#7c6af7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
 function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='admin')renderAdminList();}
-function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}el.innerHTML=data.employees.map(emp=>{const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;const diff=(latest!==null&&emp.goal)?latest-emp.goal:null;const diffStr=diff!==null?(diff>0?'+':'')+diff.toFixed(1):'--';const diffColor=diff===null?'':diff<=0?'var(--accent2)':diff<=3?'var(--warn)':'var(--danger)';let badge,badgeClass;if(diff===null){badge='未設定';badgeClass='badge-none';}else if(diff<=0){badge='達成';badgeClass='badge-good';}else if(diff<=5){badge='継続中';badgeClass='badge-warn';}else{badge='要注意';badgeClass='badge-bad';}const lastDate=recs.length?recs[recs.length-1].date.replace(/-/g,'/'):'未記録';return`<div class="admin-row"><div><div class="admin-name">${emp.name}</div><div class="admin-sub">最終: ${lastDate}</div></div><div class="admin-weight">${latest!==null?latest.toFixed(1)+'kg':'--'}</div><div class="admin-diff" style="color:${diffColor}">${diffStr!=='--'?diffStr+'kg':'--'}</div><span class="badge ${badgeClass}">${badge}</span></div>`;}).join('');}
-function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,goal:null,records:[]});saveData(data);document.getElementById('new-emp-name').value='';showToast(name+' を追加しました');populateSelect();renderAdminList();}
+function checkAdminPw(){if(document.getElementById('admin-pw-input').value===ADMIN_PW){document.getElementById('admin-locked').style.display='none';document.getElementById('admin-unlocked').style.display='block';renderAdminList();}else{showToast('パスワードが違います','var(--danger)');document.getElementById('admin-pw-input').value='';}}
+function lockAdmin(){document.getElementById('admin-locked').style.display='block';document.getElementById('admin-unlocked').style.display='none';document.getElementById('admin-pw-input').value='';}
+function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const deadlines=getThisMonthDeadlines();const now=getJPTime();el.innerHTML=data.employees.map(emp=>{const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const diff=(latest&&emp.goal)?latest.weight-emp.goal:null;const diffStr=diff!==null?(diff>0?'+':'')+diff.toFixed(1)+'kg':'--';const diffColor=diff===null?'':diff<=0?'var(--accent2)':diff<=3?'var(--warn)':'var(--danger)';const missing=deadlines.filter(dl=>{const dlDate=new Date(dl+'T00:00:00');return now>dlDate&&!recs.some(r=>r.date===dl);});let badge='';if(missing.length>0)badge='<span class="badge badge-missing">未記録</span>';else if(diff===null)badge='<span class="badge badge-none">未設定</span>';else if(diff<=0)badge='<span class="badge badge-good">達成</span>';else if(diff<=5)badge='<span class="badge badge-warn">継続中</span>';else badge='<span class="badge badge-bad">要注意</span>';const lateCount=recs.filter(r=>r.late).length;const lateBadge=lateCount>0?`<span class="late-badge">遅延${lateCount}回</span>`:'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${lateBadge}${badge}</div><div class="admin-sub">${emp.height?emp.height+'cm':''} ${emp.age?'· '+emp.age+'歳':''} · 最終: ${latest?latest.date.replace(/-/g,'/'):'未記録'}</div></div><div class="admin-right"><div class="admin-weight" style="color:${diffColor}">${latest?latest.weight.toFixed(1)+'kg':'--'}<br><span style="font-size:10px;color:var(--text3)">${diffStr}</span></div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
+function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
+function cancelEdit(){document.getElementById('edit-emp-card').style.display='none';}
+function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const age=parseInt(document.getElementById('edit-emp-age').value);const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(age))emp.age=age;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;saveData(data);cancelEdit();populateSelect();renderAdminList();showToast('更新しました');}
+function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';showToast(name+' を追加しました');populateSelect();renderAdminList();}
+function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？記録も全て消えます。`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;populateSelect();loadEmployee();renderAdminList();showToast('削除しました');}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
 init();
 </script>
