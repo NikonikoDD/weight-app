@@ -43,7 +43,7 @@
     .form-row label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
     input[type="date"],input[type="number"],input[type="text"],input[type="password"],textarea{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;color-scheme:dark;}
     textarea{resize:vertical;min-height:80px;line-height:1.6;}
-    input:focus,textarea:focus{outline:none;border-color:var(--accent);}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);}
     .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
     .btn:active{opacity:0.8;transform:scale(0.98);}
     .btn-primary{background:var(--accent);color:#fff;}
@@ -73,6 +73,7 @@
     .badge-bad{background:rgba(244,63,94,0.15);color:var(--danger);}
     .badge-none{background:var(--surface2);color:var(--text3);}
     .badge-missing{background:rgba(244,63,94,0.15);color:var(--danger);}
+    .badge-nopw{background:rgba(124,106,247,0.15);color:var(--accent);}
     .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 24px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:500;opacity:0;transition:all 0.25s;pointer-events:none;z-index:200;white-space:nowrap;}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
     .empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px;}
@@ -84,6 +85,14 @@
     .deadline-info.late{color:var(--warn);}
     .deadline-info.ok{color:var(--text3);}
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    #emp-login-screen{position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0)+16px);background:var(--bg);display:none;}
+    #emp-login-screen.active{display:block;}
+    .login-header{text-align:center;padding:32px 0 24px;}
+    .login-icon{font-size:52px;margin-bottom:12px;}
+    .login-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+    .login-sub{font-size:13px;color:var(--text3);}
+    .setup-banner{background:rgba(124,106,247,0.1);border:1px solid rgba(124,106,247,0.25);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--accent);}
+    .section-divider{margin:16px 0 10px;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
   </style>
 </head>
 <body>
@@ -98,26 +107,58 @@
   </div>
 </div>
 <div class="pages">
-  <div id="page-employee" class="page active">
-    <div class="emp-select-wrap">
-      <label>社員を選択</label>
-      <select id="emp-select" onchange="loadEmployee()"></select>
+  <div id="page-employee" class="page active" style="padding:0;overflow:hidden;">
+    <div id="emp-login-screen" class="active">
+      <div class="login-header">
+        <div class="login-icon">👤</div>
+        <div class="login-title">社員ログイン</div>
+        <div class="login-sub">氏名を選択してパスワードでログイン</div>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <label>氏名を選択</label>
+          <select id="login-emp-select"></select>
+        </div>
+        <div class="form-row">
+          <label>パスワード</label>
+          <input type="password" id="login-emp-pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')empLogin()">
+        </div>
+        <button class="btn btn-primary" onclick="empLogin()">ログイン</button>
+      </div>
     </div>
-    <div class="metrics-grid">
-      <div class="metric-card"><div class="metric-label">現在体重</div><div class="metric-value" id="cur-weight">--</div><div class="metric-unit">kg</div></div>
-      <div class="metric-card"><div class="metric-label">BMI</div><div class="metric-value" id="cur-bmi">--</div><div class="metric-unit" id="bmi-label">--</div></div>
-      <div class="metric-card"><div class="metric-label">目標まで</div><div class="metric-value" id="diff-weight">--</div><div class="metric-unit">kg</div></div>
+    <div id="emp-main-screen" style="position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0)+16px);display:none;-webkit-overflow-scrolling:touch;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:13px;color:var(--accent);font-weight:500;" id="logged-in-name">-- さん</div>
+        <button class="btn btn-secondary btn-sm" onclick="empLogout()">ログアウト</button>
+      </div>
+      <div id="setup-banner" class="setup-banner" style="display:none;">
+        ℹ️ 初回ログインです。下のフォームから身長・年齢・目標体重を設定してください。
+      </div>
+      <div id="setup-form-card" class="card" style="display:none;">
+        <div class="card-title">プロフィール設定（初回）</div>
+        <div class="two-col">
+          <div class="form-row"><label>年齢</label><input type="number" id="setup-age" min="18" max="80" placeholder="35"></div>
+          <div class="form-row"><label>身長 (cm)</label><input type="number" id="setup-height" min="140" max="220" placeholder="170"></div>
+        </div>
+        <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="setup-goal" step="0.1" placeholder="65.0"></div>
+        <button class="btn btn-primary" onclick="saveSetup()">設定を保存する</button>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">現在体重</div><div class="metric-value" id="cur-weight">--</div><div class="metric-unit">kg</div></div>
+        <div class="metric-card"><div class="metric-label">BMI</div><div class="metric-value" id="cur-bmi">--</div><div class="metric-unit" id="bmi-label">--</div></div>
+        <div class="metric-card"><div class="metric-label">目標まで</div><div class="metric-value" id="diff-weight">--</div><div class="metric-unit">kg</div></div>
+      </div>
+      <div class="card" id="profile-card"></div>
+      <div class="card">
+        <div class="card-title">体重を記録</div>
+        <div id="deadline-info" class="deadline-info ok"></div>
+        <div class="form-row"><label>体重 (kg)</label><input type="number" id="record-weight" step="0.1" min="30" max="200" placeholder="例: 68.5"></div>
+        <div class="form-row"><label>今月の一言コメント（取り組みなど）</label><textarea id="record-comment" placeholder="例: 毎朝ウォーキングを続けました。"></textarea></div>
+        <button class="btn btn-primary" onclick="addRecord()">記録する</button>
+      </div>
+      <div class="card"><div class="card-title">体重推移グラフ</div><svg id="weight-chart" viewBox="0 0 340 160"></svg></div>
+      <div class="card"><div class="card-title">記録履歴</div><div id="history-list"></div></div>
     </div>
-    <div class="card" id="profile-card"></div>
-    <div class="card">
-      <div class="card-title">体重を記録</div>
-      <div id="deadline-info" class="deadline-info ok"></div>
-      <div class="form-row"><label>体重 (kg)</label><input type="number" id="record-weight" step="0.1" min="30" max="200" placeholder="例: 68.5"></div>
-      <div class="form-row"><label>今月の一言コメント（取り組みなど）</label><textarea id="record-comment" placeholder="例: 毎朝ウォーキングを続けました。"></textarea></div>
-      <button class="btn btn-primary" onclick="addRecord()">記録する</button>
-    </div>
-    <div class="card"><div class="card-title">体重推移グラフ</div><svg id="weight-chart" viewBox="0 0 340 160"></svg></div>
-    <div class="card"><div class="card-title">記録履歴</div><div id="history-list"></div></div>
   </div>
   <div id="page-admin" class="page">
     <div id="admin-locked">
@@ -144,6 +185,12 @@
           <div class="form-row"><label>身長 (cm)</label><input type="number" id="edit-emp-height" min="140" max="220"></div>
         </div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="edit-emp-goal" step="0.1"></div>
+        <div class="section-divider">パスワード設定</div>
+        <div class="form-row">
+          <label>新しいパスワード（空欄で変更なし）</label>
+          <input type="password" id="edit-emp-pw" placeholder="新しいパスワードを入力">
+        </div>
+        <div id="edit-emp-pw-status" style="font-size:11px;margin-bottom:12px;"></div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-secondary" onclick="cancelEdit()">キャンセル</button>
           <button class="btn btn-primary" onclick="saveEdit()">保存する</button>
@@ -157,46 +204,60 @@
           <div class="form-row"><label>身長 (cm)</label><input type="number" id="new-emp-height" placeholder="170" min="140" max="220"></div>
         </div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="new-emp-goal" placeholder="65.0" step="0.1"></div>
+        <div class="form-row">
+          <label>パスワード（初期設定）</label>
+          <input type="password" id="new-emp-pw" placeholder="パスワードを設定">
+        </div>
         <button class="btn btn-primary" onclick="addEmployee()">追加する</button>
+      </div>
+      <div class="card">
+        <div class="card-title">管理者パスワード変更</div>
+        <div class="form-row"><label>現在のパスワード</label><input type="password" id="chg-pw-current" placeholder="現在のパスワード"></div>
+        <div class="form-row"><label>新しいパスワード</label><input type="password" id="chg-pw-new" placeholder="新しいパスワード（6文字以上）"></div>
+        <div class="form-row"><label>新しいパスワード（確認）</label><input type="password" id="chg-pw-confirm" placeholder="もう一度入力"></div>
+        <button class="btn btn-primary" onclick="changeAdminPw()">パスワードを変更する</button>
       </div>
     </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const STORAGE_KEY='weight_app_v3';
-const ADMIN_PW='nagi1234';
+const STORAGE_KEY='weight_app_v4';
+const DEFAULT_ADMIN_PW='nagi1234';
 function getJPTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));}
 function updateClock(){const now=getJPTime();const str=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});document.getElementById('jp-time').textContent='日本時間 '+str;}
 updateClock();setInterval(updateClock,60000);
 function getThisMonthDeadlines(){const now=getJPTime();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');return[`${y}-${m}-01`,`${y}-${m}-15`];}
 function getNextDeadline(){const now=getJPTime();const d=now.getDate();const y=now.getFullYear();const m=now.getMonth()+1;if(d<15)return`${y}-${String(m).padStart(2,'0')}-15`;const nm=m===12?1:m+1;const ny=m===12?y+1:y;return`${ny}-${String(nm).padStart(2,'0')}-01`;}
-function loadData(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultData();}catch(e){return defaultData();}}
-function defaultData(){return{employees:[{id:1,name:'社員 01',age:30,height:165,goal:60,records:[]},{id:2,name:'社員 02',age:32,height:170,goal:65,records:[]},{id:3,name:'社員 03',age:28,height:168,goal:63,records:[]},{id:4,name:'社員 04',age:35,height:172,goal:68,records:[]},{id:5,name:'社員 05',age:40,height:160,goal:58,records:[]},{id:6,name:'社員 06',age:27,height:175,goal:70,records:[]},{id:7,name:'社員 07',age:33,height:163,goal:60,records:[]},{id:8,name:'社員 08',age:38,height:178,goal:75,records:[]},{id:9,name:'社員 09',age:29,height:167,goal:62,records:[]},{id:10,name:'社員 10',age:42,height:173,goal:72,records:[]}],nextId:11};}
+function loadData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d){if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;d.employees.forEach(e=>{if(e.password===undefined)e.password='';});return d;}return defaultData();}catch(e){return defaultData();}}
+function defaultData(){return{adminPw:DEFAULT_ADMIN_PW,employees:[{id:1,name:'社員 01',age:30,height:165,goal:60,password:'',records:[]},{id:2,name:'社員 02',age:32,height:170,goal:65,password:'',records:[]},{id:3,name:'社員 03',age:28,height:168,goal:63,password:'',records:[]},{id:4,name:'社員 04',age:35,height:172,goal:68,password:'',records:[]},{id:5,name:'社員 05',age:40,height:160,goal:58,password:'',records:[]},{id:6,name:'社員 06',age:27,height:175,goal:70,password:'',records:[]},{id:7,name:'社員 07',age:33,height:163,goal:60,password:'',records:[]},{id:8,name:'社員 08',age:38,height:178,goal:75,password:'',records:[]},{id:9,name:'社員 09',age:29,height:167,goal:62,password:'',records:[]},{id:10,name:'社員 10',age:42,height:173,goal:72,password:'',records:[]}],nextId:11};}
 function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
 function calcBMI(w,hcm){const h=hcm/100;return(w/(h*h)).toFixed(1);}
 function bmiLabel(b){const v=parseFloat(b);if(v<18.5)return'低体重';if(v<25)return'普通';if(v<30)return'肥満1度';return'肥満2度+';}
 function bmiClass(b){const v=parseFloat(b);if(v<18.5)return'warn';if(v<25)return'good';return'bad';}
 function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 let currentEmpId=null;
-function init(){populateSelect();loadEmployee();}
-function populateSelect(){const data=loadData();const sel=document.getElementById('emp-select');sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');if(!currentEmpId&&data.employees.length)currentEmpId=data.employees[0].id;sel.value=currentEmpId;}
-function loadEmployee(){currentEmpId=parseInt(document.getElementById('emp-select').value);const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}const deadlines=getThisMonthDeadlines();const now=getJPTime();let msg='';let isLate=false;for(const dl of deadlines){const dlDate=new Date(dl+'T00:00:00');const hasRec=recs.some(r=>r.date===dl);if(!hasRec&&now>dlDate){msg=`⚠️ ${dl.replace(/-/g,'/')} の記録がまだです（遅延）`;isLate=true;break;}}if(!msg){const next=getNextDeadline();msg=`次の記録日: ${next.replace(/-/g,'/')}`;}const dlEl=document.getElementById('deadline-info');dlEl.textContent=msg;dlEl.className='deadline-info '+(isLate?'late':'ok');renderChart(recs,emp.goal);renderHistory(recs,emp);}
+function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='admin')renderAdminList();}
+function initEmpLogin(){const data=loadData();const sel=document.getElementById('login-emp-select');sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');document.getElementById('login-emp-pw').value='';}
+function empLogin(){const data=loadData();const empId=parseInt(document.getElementById('login-emp-select').value);const pw=document.getElementById('login-emp-pw').value;const emp=data.employees.find(e=>e.id===empId);if(!emp){showToast('社員が見つかりません','var(--danger)');return;}if(emp.password!==''&&emp.password!==pw){showToast('パスワードが違います','var(--danger)');document.getElementById('login-emp-pw').value='';return;}currentEmpId=empId;document.getElementById('emp-login-screen').classList.remove('active');document.getElementById('emp-main-screen').style.display='block';document.getElementById('logged-in-name').textContent=emp.name+' さん';const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-banner').style.display=needsSetup?'block':'none';document.getElementById('setup-form-card').style.display=needsSetup?'block':'none';if(needsSetup){document.getElementById('setup-age').value=emp.age||'';document.getElementById('setup-height').value=emp.height||'';document.getElementById('setup-goal').value=emp.goal||'';}loadEmployee();}
+function empLogout(){currentEmpId=null;document.getElementById('emp-login-screen').classList.add('active');document.getElementById('emp-main-screen').style.display='none';initEmpLogin();}
+function saveSetup(){const age=parseInt(document.getElementById('setup-age').value);const height=parseFloat(document.getElementById('setup-height').value);const goal=parseFloat(document.getElementById('setup-goal').value);if(isNaN(height)||height<140||height>220){showToast('身長を正しく入力してください','var(--danger)');return;}if(isNaN(goal)||goal<30||goal>200){showToast('目標体重を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;if(!isNaN(age))emp.age=age;emp.height=height;emp.goal=goal;saveData(data);document.getElementById('setup-banner').style.display='none';document.getElementById('setup-form-card').style.display='none';showToast('プロフィールを設定しました！');loadEmployee();}
+function loadEmployee(){if(!currentEmpId)return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}const deadlines=getThisMonthDeadlines();const now=getJPTime();let msg='';let isLate=false;for(const dl of deadlines){const dlDate=new Date(dl+'T00:00:00');const hasRec=recs.some(r=>r.date===dl);if(!hasRec&&now>dlDate){msg=`⚠️ ${dl.replace(/-/g,'/')} の記録がまだです（遅延）`;isLate=true;break;}}if(!msg){const next=getNextDeadline();msg=`次の記録日: ${next.replace(/-/g,'/')}`;}const dlEl=document.getElementById('deadline-info');dlEl.textContent=msg;dlEl.className='deadline-info '+(isLate?'late':'ok');renderChart(recs,emp.goal);renderHistory(recs,emp);}
 function addRecord(){const w=parseFloat(document.getElementById('record-weight').value);const comment=document.getElementById('record-comment').value.trim();if(isNaN(w)||w<30||w>200){showToast('体重を正しく入力してください','var(--danger)');return;}const now=getJPTime();const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;const d=now.getDate();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');let targetDate=todayStr;let lateFlag=false;const deadlines=getThisMonthDeadlines();if(deadlines.includes(todayStr)){targetDate=todayStr;}else if(d>1&&d<=4){targetDate=`${y}-${m}-01`;lateFlag=true;}else if(d>15&&d<=18){targetDate=`${y}-${m}-15`;lateFlag=true;}else{targetDate=getNextDeadline();}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const idx=emp.records.findIndex(r=>r.date===targetDate);const record={date:targetDate,weight:w,comment,late:lateFlag,recordedAt:todayStr};if(idx>=0)emp.records[idx]=record;else emp.records.push(record);saveData(data);document.getElementById('record-weight').value='';document.getElementById('record-comment').value='';showToast(lateFlag?'記録しました（遅延扱い）':'記録しました！');loadEmployee();}
 function deleteRecord(date){if(!confirm('この記録を削除しますか？'))return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);emp.records=emp.records.filter(r=>r.date!==date);saveData(data);loadEmployee();}
 function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent2)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;const lateBadge=r.late?'<span class="late-badge">遅延</span>':'';const recAt=r.recordedAt&&r.recordedAt!==r.date?`<span style="font-size:10px;color:var(--text3);"> (${r.recordedAt.replace(/-/g,'/')}入力)</span>`:'';return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${lateBadge}${recAt}${deltaStr?`<span style="font-size:12px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div style="display:flex;align-items:center;gap:8px;"><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div><button class="history-del" onclick="deleteRecord('${r.date}')">削除</button></div></div>${r.comment?`<div class="history-comment">"${r.comment}"</div>`:''}</div>`;}).join('');}
 function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#5a5a7a">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=20,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#5a5a7a">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const ab=y(minW);const ap=`M${x(0).toFixed(1)},${ab} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${ab} Z`;let gl='';if(goal){const gy=y(goal).toFixed(1);gl=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#4cc9a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#4cc9a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="${r.late?'#f59e0b':'#7c6af7'}"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1&&i%2!==0)return'';return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#5a5a7a">${r.date.slice(5,7)+'/'+r.date.slice(8,10)}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6af7" stop-opacity="0.25"/><stop offset="100%" stop-color="#7c6af7" stop-opacity="0"/></linearGradient></defs>${grid}${gl}<path d="${ap}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#7c6af7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
-function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='admin')renderAdminList();}
-function checkAdminPw(){if(document.getElementById('admin-pw-input').value===ADMIN_PW){document.getElementById('admin-locked').style.display='none';document.getElementById('admin-unlocked').style.display='block';renderAdminList();}else{showToast('パスワードが違います','var(--danger)');document.getElementById('admin-pw-input').value='';}}
+function checkAdminPw(){const data=loadData();if(document.getElementById('admin-pw-input').value===data.adminPw){document.getElementById('admin-locked').style.display='none';document.getElementById('admin-unlocked').style.display='block';renderAdminList();}else{showToast('パスワードが違います','var(--danger)');document.getElementById('admin-pw-input').value='';}}
 function lockAdmin(){document.getElementById('admin-locked').style.display='block';document.getElementById('admin-unlocked').style.display='none';document.getElementById('admin-pw-input').value='';}
-function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const deadlines=getThisMonthDeadlines();const now=getJPTime();el.innerHTML=data.employees.map(emp=>{const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const diff=(latest&&emp.goal)?latest.weight-emp.goal:null;const diffStr=diff!==null?(diff>0?'+':'')+diff.toFixed(1)+'kg':'--';const diffColor=diff===null?'':diff<=0?'var(--accent2)':diff<=3?'var(--warn)':'var(--danger)';const missing=deadlines.filter(dl=>{const dlDate=new Date(dl+'T00:00:00');return now>dlDate&&!recs.some(r=>r.date===dl);});let badge='';if(missing.length>0)badge='<span class="badge badge-missing">未記録</span>';else if(diff===null)badge='<span class="badge badge-none">未設定</span>';else if(diff<=0)badge='<span class="badge badge-good">達成</span>';else if(diff<=5)badge='<span class="badge badge-warn">継続中</span>';else badge='<span class="badge badge-bad">要注意</span>';const lateCount=recs.filter(r=>r.late).length;const lateBadge=lateCount>0?`<span class="late-badge">遅延${lateCount}回</span>`:'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${lateBadge}${badge}</div><div class="admin-sub">${emp.height?emp.height+'cm':''} ${emp.age?'· '+emp.age+'歳':''} · 最終: ${latest?latest.date.replace(/-/g,'/'):'未記録'}</div></div><div class="admin-right"><div class="admin-weight" style="color:${diffColor}">${latest?latest.weight.toFixed(1)+'kg':'--'}<br><span style="font-size:10px;color:var(--text3)">${diffStr}</span></div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
-function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
+function changeAdminPw(){const current=document.getElementById('chg-pw-current').value;const newPw=document.getElementById('chg-pw-new').value;const confirm2=document.getElementById('chg-pw-confirm').value;const data=loadData();if(current!==data.adminPw){showToast('現在のパスワードが違います','var(--danger)');return;}if(newPw.length<6){showToast('新しいパスワードは6文字以上にしてください','var(--danger)');return;}if(newPw!==confirm2){showToast('新しいパスワードが一致しません','var(--danger)');return;}data.adminPw=newPw;saveData(data);document.getElementById('chg-pw-current').value='';document.getElementById('chg-pw-new').value='';document.getElementById('chg-pw-confirm').value='';showToast('管理者パスワードを変更しました！');}
+function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const deadlines=getThisMonthDeadlines();const now=getJPTime();el.innerHTML=data.employees.map(emp=>{const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const diff=(latest&&emp.goal)?latest.weight-emp.goal:null;const diffStr=diff!==null?(diff>0?'+':'')+diff.toFixed(1)+'kg':'--';const diffColor=diff===null?'':diff<=0?'var(--accent2)':diff<=3?'var(--warn)':'var(--danger)';const missing=deadlines.filter(dl=>{const dlDate=new Date(dl+'T00:00:00');return now>dlDate&&!recs.some(r=>r.date===dl);});let badge='';if(missing.length>0)badge='<span class="badge badge-missing">未記録</span>';else if(diff===null)badge='<span class="badge badge-none">未設定</span>';else if(diff<=0)badge='<span class="badge badge-good">達成</span>';else if(diff<=5)badge='<span class="badge badge-warn">継続中</span>';else badge='<span class="badge badge-bad">要注意</span>';const lateCount=recs.filter(r=>r.late).length;const lateBadge=lateCount>0?`<span class="late-badge">遅延${lateCount}回</span>`:'';const noPwBadge=emp.password===''?'<span class="badge badge-nopw">PW未設定</span>':'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${lateBadge}${badge}${noPwBadge}</div><div class="admin-sub">${emp.height?emp.height+'cm':''} ${emp.age?'· '+emp.age+'歳':''} · 最終: ${latest?latest.date.replace(/-/g,'/'):'未記録'}</div></div><div class="admin-right"><div class="admin-weight" style="color:${diffColor}">${latest?latest.weight.toFixed(1)+'kg':'--'}<br><span style="font-size:10px;color:var(--text3)">${diffStr}</span></div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
+function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み（変更する場合のみ入力）':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent2)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
 function cancelEdit(){document.getElementById('edit-emp-card').style.display='none';}
-function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const age=parseInt(document.getElementById('edit-emp-age').value);const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(age))emp.age=age;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;saveData(data);cancelEdit();populateSelect();renderAdminList();showToast('更新しました');}
-function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';showToast(name+' を追加しました');populateSelect();renderAdminList();}
-function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？記録も全て消えます。`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;populateSelect();loadEmployee();renderAdminList();showToast('削除しました');}
+function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const age=parseInt(document.getElementById('edit-emp-age').value);const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);const newPw=document.getElementById('edit-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(age))emp.age=age;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;if(newPw!=='')emp.password=newPw;saveData(data);cancelEdit();initEmpLogin();renderAdminList();showToast('更新しました');}
+function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
+function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？記録も全て消えます。`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
-init();
+initEmpLogin();
 </script>
 </body>
 </html>
