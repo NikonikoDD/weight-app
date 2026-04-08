@@ -3,137 +3,247 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>体重管理アプリ</title>
-  <meta name="theme-color" content="#1a1a2e">
+  <title>健体GO</title>
+  <meta name="theme-color" content="#0f1923">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="体重管理">
+  <meta name="apple-mobile-web-app-title" content="健体GO">
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0f0f1a;--surface:#1a1a2e;--surface2:#22223b;--accent:#7c6af7;--accent2:#4cc9a0;--warn:#f59e0b;--danger:#f43f5e;--text:#f0f0ff;--text2:#9898b8;--text3:#5a5a7a;--border:rgba(255,255,255,0.08);--radius:16px;--radius-sm:10px;}
+    :root{
+      --bg:#0f1923;--surface:#1a2535;--surface2:#243044;--surface3:#2d3d57;
+      --accent:#00e5a0;--accent2:#00b8ff;--accent3:#ff6b35;--warn:#ffd166;--danger:#ef476f;
+      --text:#eaf2ff;--text2:#8ba4c4;--text3:#4a6080;
+      --border:rgba(255,255,255,0.07);--radius:16px;--radius-sm:10px;
+      --gold:#ffd700;--silver:#c0c8d8;--bronze:#cd7f32;
+    }
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
     html,body{height:100%;overflow:hidden;}
     body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
     .header{padding:env(safe-area-inset-top,0) 0 0;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
-    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;}
-    .header-title{font-size:18px;font-weight:700;}
-    .header-title span{color:var(--accent);}
-    .tab-bar{display:flex;padding:0 20px 12px;gap:6px;}
-    .tab{flex:1;padding:7px 0;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
-    .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;}
+    .header-logo{display:flex;align-items:center;gap:8px;}
+    .header-logo-text{font-size:20px;font-weight:900;letter-spacing:-0.5px;}
+    .header-logo-text .go{color:var(--accent);font-size:22px;}
+    .tab-bar{display:flex;padding:0 16px 10px;gap:5px;}
+    .tab{flex:1;padding:7px 0;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+    .tab.active{background:var(--accent);border-color:var(--accent);color:#0f1923;font-weight:700;}
     .pages{flex:1;overflow:hidden;position:relative;}
-    .page{position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0) + 16px);display:none;-webkit-overflow-scrolling:touch;}
+    .page{position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0)+16px);display:none;-webkit-overflow-scrolling:touch;}
     .page.active{display:block;}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
-    .card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;}
-    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+    .card-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+    .point-hero{background:linear-gradient(135deg,#1a3a2a 0%,#1a2535 100%);border:1px solid rgba(0,229,160,0.2);border-radius:var(--radius);padding:20px 16px;margin-bottom:12px;text-align:center;}
+    .point-hero-label{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+    .point-hero-value{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;color:var(--accent);line-height:1;margin-bottom:4px;}
+    .point-hero-unit{font-size:13px;color:var(--text2);}
+    .point-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+    .point-mini{background:rgba(255,255,255,0.04);border-radius:8px;padding:10px 6px;text-align:center;}
+    .point-mini-label{font-size:9px;color:var(--text3);margin-bottom:3px;}
+    .point-mini-value{font-family:'DM Mono',monospace;font-size:16px;color:var(--text);font-weight:500;}
+    .streak-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px;}
+    .streak-left{display:flex;align-items:center;gap:10px;}
+    .streak-icon{font-size:24px;}
+    .streak-label{font-size:11px;color:var(--text2);}
+    .streak-count{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--warn);}
+    .streak-unit{font-size:11px;color:var(--text3);}
+    .streak-right{font-size:11px;color:var(--text3);text-align:right;}
+    .today-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+    .today-input-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;}
+    .today-input-card.done{border-color:rgba(0,229,160,0.3);background:rgba(0,229,160,0.05);}
+    .today-input-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .today-input-title{font-size:11px;color:var(--text3);font-weight:500;}
+    .today-input-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;}
+    .badge-done{background:rgba(0,229,160,0.15);color:var(--accent);}
+    .badge-yet{background:var(--surface2);color:var(--text3);}
+    .today-input-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;}
+    .today-input-pt{font-size:10px;margin-top:2px;}
+    .pt-earn{color:var(--accent);}
+    .pt-pending{color:var(--text3);}
+    .form-row{margin-bottom:12px;}
+    .form-row label{font-size:10px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;}
+    input[type="number"],input[type="text"],input[type="password"],textarea,select{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;color-scheme:dark;}
+    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238ba4c4' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+    textarea{resize:vertical;min-height:70px;line-height:1.6;}
+    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);}
+    .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
+    .btn:active{opacity:0.8;transform:scale(0.98);}
+    .btn-primary{background:var(--accent);color:#0f1923;}
+    .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+    .btn-danger{background:rgba(239,71,111,0.15);color:var(--danger);border:1px solid rgba(239,71,111,0.3);}
+    .btn-sm{padding:6px 12px;width:auto;font-size:12px;font-weight:500;}
+    .metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
     .metric-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
-    .metric-label{font-size:10px;color:var(--text3);margin-bottom:4px;}
+    .metric-label{font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:700;text-transform:uppercase;}
     .metric-value{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;line-height:1;}
-    .metric-unit{font-size:10px;color:var(--text3);margin-top:2px;}
-    .metric-value.good{color:var(--accent2);}
+    .metric-unit{font-size:9px;color:var(--text3);margin-top:2px;}
+    .metric-value.good{color:var(--accent);}
     .metric-value.warn{color:var(--warn);}
     .metric-value.bad{color:var(--danger);}
-    .emp-select-wrap{margin-bottom:14px;}
-    .emp-select-wrap label{font-size:11px;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
-    select{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239898b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
-    .form-row{margin-bottom:12px;}
-    .form-row label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;}
-    input[type="date"],input[type="number"],input[type="text"],input[type="password"],textarea{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:15px;color-scheme:dark;}
-    textarea{resize:vertical;min-height:80px;line-height:1.6;}
-    input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);}
-    .btn{width:100%;padding:13px;border:none;border-radius:var(--radius-sm);font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:opacity 0.15s,transform 0.1s;}
-    .btn:active{opacity:0.8;transform:scale(0.98);}
-    .btn-primary{background:var(--accent);color:#fff;}
-    .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
-    .btn-danger{background:rgba(244,63,94,0.15);color:var(--danger);border:1px solid rgba(244,63,94,0.3);}
-    .btn-sm{padding:6px 12px;width:auto;font-size:12px;}
     #weight-chart{width:100%;height:auto;display:block;}
-    .history-item{padding:12px 0;border-bottom:1px solid var(--border);}
+    .history-item{padding:11px 0;border-bottom:1px solid var(--border);}
     .history-item:last-child{border-bottom:none;}
     .history-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;}
-    .history-date{font-size:13px;color:var(--text2);}
-    .history-weight{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;}
-    .history-comment{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.6;font-style:italic;padding:8px 10px;background:var(--surface2);border-radius:8px;}
-    .history-del{background:none;border:1px solid var(--border);color:var(--text3);border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer;flex-shrink:0;}
-    .late-badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:rgba(245,158,11,0.15);color:var(--warn);margin-left:6px;}
+    .history-date{font-size:12px;color:var(--text2);}
+    .history-weight{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;}
+    .history-comment{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.6;font-style:italic;padding:7px 10px;background:var(--surface2);border-radius:7px;}
+    .ranking-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+    .ranking-item:last-child{border-bottom:none;}
+    .rank-num{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;width:28px;text-align:center;flex-shrink:0;}
+    .rank-1{color:var(--gold);}
+    .rank-2{color:var(--silver);}
+    .rank-3{color:var(--bronze);}
+    .rank-other{color:var(--text3);}
+    .rank-info{flex:1;}
+    .rank-name{font-size:14px;font-weight:500;}
+    .rank-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+    .rank-points{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent);flex-shrink:0;}
+    .rank-points span{font-size:10px;color:var(--text3);}
     .admin-row{padding:12px 0;border-bottom:1px solid var(--border);}
     .admin-row:last-child{border-bottom:none;}
     .admin-row-top{display:flex;align-items:center;justify-content:space-between;}
-    .admin-name-line{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .admin-name-line{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
     .admin-name{font-size:14px;font-weight:500;}
-    .admin-sub{font-size:11px;color:var(--text3);margin-top:3px;}
-    .admin-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .admin-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+    .admin-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
     .admin-weight{font-family:'DM Mono',monospace;font-size:13px;text-align:right;}
-    .badge{display:inline-block;font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap;}
-    .badge-good{background:rgba(76,201,160,0.15);color:var(--accent2);}
-    .badge-warn{background:rgba(245,158,11,0.15);color:var(--warn);}
-    .badge-bad{background:rgba(244,63,94,0.15);color:var(--danger);}
+    .badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px;white-space:nowrap;}
+    .badge-good{background:rgba(0,229,160,0.15);color:var(--accent);}
+    .badge-warn{background:rgba(255,209,102,0.15);color:var(--warn);}
+    .badge-bad{background:rgba(239,71,111,0.15);color:var(--danger);}
     .badge-none{background:var(--surface2);color:var(--text3);}
-    .badge-missing{background:rgba(244,63,94,0.15);color:var(--danger);}
-    .badge-nopw{background:rgba(124,106,247,0.15);color:var(--accent);}
-    .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 24px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:500;opacity:0;transition:all 0.25s;pointer-events:none;z-index:200;white-space:nowrap;}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-    .empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px;}
+    .badge-nopw{background:rgba(0,184,255,0.15);color:var(--accent2);}
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
     .profile-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;}
-    .profile-item-label{font-size:10px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;}
+    .profile-item-label{font-size:9px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;font-weight:700;}
     .profile-item-value{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;}
-    .deadline-info{font-size:12px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:12px;line-height:1.5;}
-    .deadline-info.late{color:var(--warn);}
-    .deadline-info.ok{color:var(--text3);}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-    #emp-login-screen{position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0)+16px);background:var(--bg);display:none;}
+    #emp-login-screen{position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0)+16px);background:var(--bg);display:none;}
     #emp-login-screen.active{display:block;}
-    .login-header{text-align:center;padding:32px 0 24px;}
-    .login-icon{font-size:52px;margin-bottom:12px;}
-    .login-title{font-size:20px;font-weight:700;margin-bottom:6px;}
-    .login-sub{font-size:13px;color:var(--text3);}
-    .setup-banner{background:rgba(124,106,247,0.1);border:1px solid rgba(124,106,247,0.25);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--accent);}
-    .section-divider{margin:16px 0 10px;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
+    .login-hero{text-align:center;padding:36px 0 28px;}
+    .login-logo{font-size:36px;font-weight:900;margin-bottom:8px;}
+    .login-logo .go{color:var(--accent);}
+    .login-tagline{font-size:12px;color:var(--text3);}
+    .toast{position:fixed;bottom:calc(env(safe-area-inset-bottom,0)+24px);left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#0f1923;padding:10px 24px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all 0.25s;pointer-events:none;z-index:200;white-space:nowrap;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+    .empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .section-divider{margin:14px 0 8px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
+    .double-day-banner{background:linear-gradient(90deg,rgba(255,107,53,0.15),rgba(255,209,102,0.1));border:1px solid rgba(255,107,53,0.3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent3);font-weight:700;text-align:center;}
+    .setup-banner{background:rgba(0,184,255,0.08);border:1px solid rgba(0,184,255,0.2);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--accent2);}
   </style>
 </head>
 <body>
 <div class="header">
   <div class="header-inner">
-    <div class="header-title">体重<span>管理</span></div>
-    <div style="font-size:11px;color:var(--text3);" id="jp-time"></div>
+    <div class="header-logo">
+      <div class="header-logo-text">健体<span class="go">GO</span></div>
+    </div>
+    <div style="font-size:10px;color:var(--text3);" id="jp-time"></div>
   </div>
   <div class="tab-bar">
-    <button class="tab active" onclick="showPage('employee',this)">社員</button>
+    <button class="tab active" onclick="showPage('home',this)">ホーム</button>
+    <button class="tab" onclick="showPage('weight',this)">体重</button>
+    <button class="tab" onclick="showPage('ranking',this)">ランキング</button>
     <button class="tab" onclick="showPage('admin',this)">管理者</button>
   </div>
 </div>
 <div class="pages">
-  <div id="page-employee" class="page active" style="padding:0;overflow:hidden;">
-    <div id="emp-login-screen" class="active">
-      <div class="login-header">
-        <div class="login-icon">👤</div>
-        <div class="login-title">社員ログイン</div>
-        <div class="login-sub">氏名を選択してパスワードでログイン</div>
-      </div>
-      <div class="card">
-        <div class="form-row">
-          <label>氏名を選択</label>
-          <select id="login-emp-select"></select>
-        </div>
-        <div class="form-row">
-          <label>パスワード</label>
-          <input type="password" id="login-emp-pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')empLogin()">
-        </div>
-        <button class="btn btn-primary" onclick="empLogin()">ログイン</button>
-      </div>
+  <div id="emp-login-screen" class="active">
+    <div class="login-hero">
+      <div class="login-logo">健体<span class="go">GO</span></div>
+      <div class="login-tagline">毎日コツコツ続けて、健康習慣を身につける制度</div>
     </div>
-    <div id="emp-main-screen" style="position:absolute;inset:0;overflow-y:auto;padding:16px 20px calc(env(safe-area-inset-bottom,0)+16px);display:none;-webkit-overflow-scrolling:touch;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div style="font-size:13px;color:var(--accent);font-weight:500;" id="logged-in-name">-- さん</div>
+    <div class="card">
+      <div class="form-row">
+        <label>氏名を選択</label>
+        <select id="login-emp-select"></select>
+      </div>
+      <div class="form-row">
+        <label>パスワード</label>
+        <input type="password" id="login-emp-pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')empLogin()">
+      </div>
+      <button class="btn btn-primary" onclick="empLogin()">ログイン</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;padding:8px;line-height:1.8;">
+      体重入力：1pt ／ 歩数入力：1pt<br>
+      5・15・25日はポイント2倍 🎯<br>
+      7日連続：+5pt ／ 月20日以上：+10pt
+    </div>
+  </div>
+  <div id="page-home" class="page active" style="padding:0;overflow:hidden;">
+    <div id="emp-main-screen" style="position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0)+16px);display:none;-webkit-overflow-scrolling:touch;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:14px;font-weight:700;" id="logged-in-name">-- さん</div>
         <button class="btn btn-secondary btn-sm" onclick="empLogout()">ログアウト</button>
       </div>
-      <div id="setup-banner" class="setup-banner" style="display:none;">
-        ℹ️ 初回ログインです。下のフォームから身長・年齢・目標体重を設定してください。
+      <div id="setup-banner" class="setup-banner" style="display:none;">ℹ️ 初回ログインです。体重タブからプロフィールを設定してください。</div>
+      <div id="double-day-banner" class="double-day-banner" style="display:none;">🎯 今日は <strong>ポイント2倍デー</strong>！</div>
+      <div class="point-hero">
+        <div class="point-hero-label">今月の獲得ポイント</div>
+        <div class="point-hero-value" id="monthly-points">0</div>
+        <div class="point-hero-unit">pt</div>
+        <div class="point-breakdown">
+          <div class="point-mini"><div class="point-mini-label">累計</div><div class="point-mini-value" id="total-points">0</div></div>
+          <div class="point-mini"><div class="point-mini-label">今月入力日数</div><div class="point-mini-value" id="monthly-days">0</div></div>
+          <div class="point-mini"><div class="point-mini-label">連続日数</div><div class="point-mini-value" id="streak-days">0</div></div>
+        </div>
       </div>
+      <div class="streak-bar">
+        <div class="streak-left">
+          <div class="streak-icon">🔥</div>
+          <div>
+            <div class="streak-label">現在の連続入力</div>
+            <div><span class="streak-count" id="streak-count">0</span> <span class="streak-unit">日連続</span></div>
+          </div>
+        </div>
+        <div class="streak-right" id="streak-next">7日連続まであと--日</div>
+      </div>
+      <div class="today-inputs">
+        <div class="today-input-card" id="today-weight-card">
+          <div class="today-input-header">
+            <div class="today-input-title">⚖️ 体重</div>
+            <div class="today-input-badge badge-yet" id="today-weight-badge">未入力</div>
+          </div>
+          <div class="today-input-value" id="today-weight-val">--</div>
+          <div class="today-input-pt pt-pending" id="today-weight-pt">+?pt</div>
+        </div>
+        <div class="today-input-card" id="today-steps-card">
+          <div class="today-input-header">
+            <div class="today-input-title">👟 歩数</div>
+            <div class="today-input-badge badge-yet" id="today-steps-badge">未入力</div>
+          </div>
+          <div class="today-input-value" id="today-steps-val">--</div>
+          <div class="today-input-pt pt-pending" id="today-steps-pt">+?pt</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">今日の記録</div>
+        <div class="two-col">
+          <div class="form-row">
+            <label>体重 (kg)</label>
+            <input type="number" id="input-weight" step="0.1" min="30" max="200" placeholder="68.5">
+          </div>
+          <div class="form-row">
+            <label>歩数</label>
+            <input type="number" id="input-steps" step="1" min="0" max="99999" placeholder="8000">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="submitTodayRecord()">記録してポイントをゲット！</button>
+      </div>
+      <div class="card">
+        <div class="card-title">今月のボーナス進捗</div>
+        <div id="bonus-progress"></div>
+      </div>
+    </div>
+  </div>
+  <div id="page-weight" class="page">
+    <div id="weight-login-required" style="display:none;text-align:center;padding:60px 20px;">
+      <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+      <div style="color:var(--text3);font-size:13px;">ホームタブからログインしてください</div>
+    </div>
+    <div id="weight-content" style="display:none;">
       <div id="setup-form-card" class="card" style="display:none;">
         <div class="card-title">プロフィール設定（初回）</div>
         <div class="two-col">
@@ -149,15 +259,18 @@
         <div class="metric-card"><div class="metric-label">目標まで</div><div class="metric-value" id="diff-weight">--</div><div class="metric-unit">kg</div></div>
       </div>
       <div class="card" id="profile-card"></div>
-      <div class="card">
-        <div class="card-title">体重を記録</div>
-        <div id="deadline-info" class="deadline-info ok"></div>
-        <div class="form-row"><label>体重 (kg)</label><input type="number" id="record-weight" step="0.1" min="30" max="200" placeholder="例: 68.5"></div>
-        <div class="form-row"><label>今月の一言コメント（取り組みなど）</label><textarea id="record-comment" placeholder="例: 毎朝ウォーキングを続けました。"></textarea></div>
-        <button class="btn btn-primary" onclick="addRecord()">記録する</button>
-      </div>
       <div class="card"><div class="card-title">体重推移グラフ</div><svg id="weight-chart" viewBox="0 0 340 160"></svg></div>
-      <div class="card"><div class="card-title">記録履歴</div><div id="history-list"></div></div>
+      <div class="card"><div class="card-title">体重記録履歴</div><div id="history-list"></div></div>
+    </div>
+  </div>
+  <div id="page-ranking" class="page">
+    <div class="card">
+      <div class="card-title">今月のポイントランキング</div>
+      <div id="ranking-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">累計ポイントランキング</div>
+      <div id="ranking-total-list"></div>
     </div>
   </div>
   <div id="page-admin" class="page">
@@ -171,11 +284,11 @@
       </div>
     </div>
     <div id="admin-unlocked" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div style="font-size:13px;color:var(--accent);font-weight:500;">✓ 管理者モード</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:13px;color:var(--accent);font-weight:700;">✓ 管理者モード</div>
         <button class="btn btn-secondary btn-sm" onclick="lockAdmin()">ログアウト</button>
       </div>
-      <div class="card"><div class="card-title">全社員 体重一覧</div><div id="admin-list"></div></div>
+      <div class="card"><div class="card-title">全社員 一覧</div><div id="admin-list"></div></div>
       <div id="edit-emp-card" style="display:none;" class="card">
         <div class="card-title">社員情報を編集</div>
         <input type="hidden" id="edit-emp-id">
@@ -204,16 +317,13 @@
           <div class="form-row"><label>身長 (cm)</label><input type="number" id="new-emp-height" placeholder="170" min="140" max="220"></div>
         </div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="new-emp-goal" placeholder="65.0" step="0.1"></div>
-        <div class="form-row">
-          <label>パスワード（初期設定）</label>
-          <input type="password" id="new-emp-pw" placeholder="パスワードを設定">
-        </div>
+        <div class="form-row"><label>パスワード</label><input type="password" id="new-emp-pw" placeholder="パスワードを設定"></div>
         <button class="btn btn-primary" onclick="addEmployee()">追加する</button>
       </div>
       <div class="card">
         <div class="card-title">管理者パスワード変更</div>
         <div class="form-row"><label>現在のパスワード</label><input type="password" id="chg-pw-current" placeholder="現在のパスワード"></div>
-        <div class="form-row"><label>新しいパスワード</label><input type="password" id="chg-pw-new" placeholder="新しいパスワード（6文字以上）"></div>
+        <div class="form-row"><label>新しいパスワード</label><input type="password" id="chg-pw-new" placeholder="6文字以上"></div>
         <div class="form-row"><label>新しいパスワード（確認）</label><input type="password" id="chg-pw-confirm" placeholder="もう一度入力"></div>
         <button class="btn btn-primary" onclick="changeAdminPw()">パスワードを変更する</button>
       </div>
@@ -222,40 +332,49 @@
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const STORAGE_KEY='weight_app_v4';
+const STORAGE_KEY='kengo_app_v1';
 const DEFAULT_ADMIN_PW='nagi1234';
 function getJPTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));}
-function updateClock(){const now=getJPTime();const str=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});document.getElementById('jp-time').textContent='日本時間 '+str;}
+function getTodayStr(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
+function getYM(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;}
+function updateClock(){const now=getJPTime();document.getElementById('jp-time').textContent=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});}
 updateClock();setInterval(updateClock,60000);
-function getThisMonthDeadlines(){const now=getJPTime();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');return[`${y}-${m}-01`,`${y}-${m}-15`];}
-function getNextDeadline(){const now=getJPTime();const d=now.getDate();const y=now.getFullYear();const m=now.getMonth()+1;if(d<15)return`${y}-${String(m).padStart(2,'0')}-15`;const nm=m===12?1:m+1;const ny=m===12?y+1:y;return`${ny}-${String(nm).padStart(2,'0')}-01`;}
-function loadData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d){if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;d.employees.forEach(e=>{if(e.password===undefined)e.password='';});return d;}return defaultData();}catch(e){return defaultData();}}
-function defaultData(){return{adminPw:DEFAULT_ADMIN_PW,employees:[{id:1,name:'社員 01',age:30,height:165,goal:60,password:'',records:[]},{id:2,name:'社員 02',age:32,height:170,goal:65,password:'',records:[]},{id:3,name:'社員 03',age:28,height:168,goal:63,password:'',records:[]},{id:4,name:'社員 04',age:35,height:172,goal:68,password:'',records:[]},{id:5,name:'社員 05',age:40,height:160,goal:58,password:'',records:[]},{id:6,name:'社員 06',age:27,height:175,goal:70,password:'',records:[]},{id:7,name:'社員 07',age:33,height:163,goal:60,password:'',records:[]},{id:8,name:'社員 08',age:38,height:178,goal:75,password:'',records:[]},{id:9,name:'社員 09',age:29,height:167,goal:62,password:'',records:[]},{id:10,name:'社員 10',age:42,height:173,goal:72,password:'',records:[]}],nextId:11};}
+function isDoubleDay(dateStr){const d=parseInt(dateStr.slice(8,10));return d===5||d===15||d===25;}
+function calcDayPoints(rec){let pt=0;const mult=isDoubleDay(rec.date)?2:1;if(rec.weight!=null)pt+=1*mult;if(rec.steps!=null)pt+=1*mult;return pt;}
+function calcStreakBonus(records){if(!records.length)return 0;let bonus=0;let streak=0;let prevDate=null;for(const r of records){if(!prevDate){streak=1;}else{const prev=new Date(prevDate+'T00:00:00');const cur=new Date(r.date+'T00:00:00');const diff=(cur-prev)/(1000*60*60*24);if(diff===1)streak++;else streak=1;}if(streak>0&&streak%7===0)bonus+=5;prevDate=r.date;}return bonus;}
+function calcMonthBonus(records,ym){const days=records.filter(r=>r.date.startsWith(ym)).length;return days>=20?10:0;}
+function calcTotalPoints(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));let pt=sorted.reduce((s,r)=>s+calcDayPoints(r),0);pt+=calcStreakBonus(sorted);const months=[...new Set(sorted.map(r=>r.date.slice(0,7)))];for(const ym of months)pt+=calcMonthBonus(sorted,ym);return pt;}
+function calcMonthPoints(emp,ym){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));const monthRecs=sorted.filter(r=>r.date.startsWith(ym));let pt=monthRecs.reduce((s,r)=>s+calcDayPoints(r),0);pt+=calcMonthBonus(sorted,ym);return pt;}
+function calcStreak(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>b.date.localeCompare(a.date));const today=getTodayStr();let streak=0;let checkDate=today;for(const r of sorted){if(r.date===checkDate){streak++;const d=new Date(checkDate+'T00:00:00');d.setDate(d.getDate()-1);checkDate=d.toISOString().slice(0,10);}else if(r.date<checkDate){break;}}return streak;}
+function calcMonthDays(emp,ym){if(!emp.dailyRecords)return 0;return emp.dailyRecords.filter(r=>r.date.startsWith(ym)).length;}
+function loadData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d){if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;d.employees.forEach(e=>{if(e.password===undefined)e.password='';if(!e.dailyRecords)e.dailyRecords=[];if(e.records&&e.records.length&&!e._migrated){e.records.forEach(r=>{if(!e.dailyRecords.find(dr=>dr.date===r.date)){e.dailyRecords.push({date:r.date,weight:r.weight,steps:null,comment:r.comment||''});}});e._migrated=true;}});return d;}return defaultData();}catch(e){return defaultData();}}
+function defaultData(){const emps=[];for(let i=1;i<=10;i++){emps.push({id:i,name:`社員 ${String(i).padStart(2,'0')}`,age:30+i,height:165+i,goal:60+i,password:'',dailyRecords:[],records:[]});}return{adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:11};}
 function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
-function calcBMI(w,hcm){const h=hcm/100;return(w/(h*h)).toFixed(1);}
+function calcBMI(w,hcm){return(w/((hcm/100)**2)).toFixed(1);}
 function bmiLabel(b){const v=parseFloat(b);if(v<18.5)return'低体重';if(v<25)return'普通';if(v<30)return'肥満1度';return'肥満2度+';}
 function bmiClass(b){const v=parseFloat(b);if(v<18.5)return'warn';if(v<25)return'good';return'bad';}
-function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.style.color=color?'#fff':'#0f1923';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 let currentEmpId=null;
-function showPage(p,btn){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));document.getElementById('page-'+p).classList.add('active');btn.classList.add('active');if(p==='admin')renderAdminList();}
+function showPage(p,btn){document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));btn.classList.add('active');if(!currentEmpId){if(p==='ranking'){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-ranking').classList.add('active');renderRanking();}else if(p==='admin'){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-admin').classList.add('active');}else{document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('emp-login-screen').classList.add('active');}return;}document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('emp-login-screen').style.display='none';document.getElementById('page-'+p).classList.add('active');if(p==='home')renderHome();if(p==='weight')renderWeight();if(p==='ranking')renderRanking();if(p==='admin')renderAdminList();}
 function initEmpLogin(){const data=loadData();const sel=document.getElementById('login-emp-select');sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');document.getElementById('login-emp-pw').value='';}
-function empLogin(){const data=loadData();const empId=parseInt(document.getElementById('login-emp-select').value);const pw=document.getElementById('login-emp-pw').value;const emp=data.employees.find(e=>e.id===empId);if(!emp){showToast('社員が見つかりません','var(--danger)');return;}if(emp.password!==''&&emp.password!==pw){showToast('パスワードが違います','var(--danger)');document.getElementById('login-emp-pw').value='';return;}currentEmpId=empId;document.getElementById('emp-login-screen').classList.remove('active');document.getElementById('emp-main-screen').style.display='block';document.getElementById('logged-in-name').textContent=emp.name+' さん';const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-banner').style.display=needsSetup?'block':'none';document.getElementById('setup-form-card').style.display=needsSetup?'block':'none';if(needsSetup){document.getElementById('setup-age').value=emp.age||'';document.getElementById('setup-height').value=emp.height||'';document.getElementById('setup-goal').value=emp.goal||'';}loadEmployee();}
-function empLogout(){currentEmpId=null;document.getElementById('emp-login-screen').classList.add('active');document.getElementById('emp-main-screen').style.display='none';initEmpLogin();}
-function saveSetup(){const age=parseInt(document.getElementById('setup-age').value);const height=parseFloat(document.getElementById('setup-height').value);const goal=parseFloat(document.getElementById('setup-goal').value);if(isNaN(height)||height<140||height>220){showToast('身長を正しく入力してください','var(--danger)');return;}if(isNaN(goal)||goal<30||goal>200){showToast('目標体重を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;if(!isNaN(age))emp.age=age;emp.height=height;emp.goal=goal;saveData(data);document.getElementById('setup-banner').style.display='none';document.getElementById('setup-form-card').style.display='none';showToast('プロフィールを設定しました！');loadEmployee();}
-function loadEmployee(){if(!currentEmpId)return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}const deadlines=getThisMonthDeadlines();const now=getJPTime();let msg='';let isLate=false;for(const dl of deadlines){const dlDate=new Date(dl+'T00:00:00');const hasRec=recs.some(r=>r.date===dl);if(!hasRec&&now>dlDate){msg=`⚠️ ${dl.replace(/-/g,'/')} の記録がまだです（遅延）`;isLate=true;break;}}if(!msg){const next=getNextDeadline();msg=`次の記録日: ${next.replace(/-/g,'/')}`;}const dlEl=document.getElementById('deadline-info');dlEl.textContent=msg;dlEl.className='deadline-info '+(isLate?'late':'ok');renderChart(recs,emp.goal);renderHistory(recs,emp);}
-function addRecord(){const w=parseFloat(document.getElementById('record-weight').value);const comment=document.getElementById('record-comment').value.trim();if(isNaN(w)||w<30||w>200){showToast('体重を正しく入力してください','var(--danger)');return;}const now=getJPTime();const todayStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;const d=now.getDate();const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');let targetDate=todayStr;let lateFlag=false;const deadlines=getThisMonthDeadlines();if(deadlines.includes(todayStr)){targetDate=todayStr;}else if(d>1&&d<=4){targetDate=`${y}-${m}-01`;lateFlag=true;}else if(d>15&&d<=18){targetDate=`${y}-${m}-15`;lateFlag=true;}else{targetDate=getNextDeadline();}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const idx=emp.records.findIndex(r=>r.date===targetDate);const record={date:targetDate,weight:w,comment,late:lateFlag,recordedAt:todayStr};if(idx>=0)emp.records[idx]=record;else emp.records.push(record);saveData(data);document.getElementById('record-weight').value='';document.getElementById('record-comment').value='';showToast(lateFlag?'記録しました（遅延扱い）':'記録しました！');loadEmployee();}
-function deleteRecord(date){if(!confirm('この記録を削除しますか？'))return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);emp.records=emp.records.filter(r=>r.date!==date);saveData(data);loadEmployee();}
-function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent2)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;const lateBadge=r.late?'<span class="late-badge">遅延</span>':'';const recAt=r.recordedAt&&r.recordedAt!==r.date?`<span style="font-size:10px;color:var(--text3);"> (${r.recordedAt.replace(/-/g,'/')}入力)</span>`:'';return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${lateBadge}${recAt}${deltaStr?`<span style="font-size:12px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div style="display:flex;align-items:center;gap:8px;"><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div><button class="history-del" onclick="deleteRecord('${r.date}')">削除</button></div></div>${r.comment?`<div class="history-comment">"${r.comment}"</div>`:''}</div>`;}).join('');}
-function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#5a5a7a">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=20,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#5a5a7a">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const ab=y(minW);const ap=`M${x(0).toFixed(1)},${ab} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${ab} Z`;let gl='';if(goal){const gy=y(goal).toFixed(1);gl=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#4cc9a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#4cc9a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="${r.late?'#f59e0b':'#7c6af7'}"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1&&i%2!==0)return'';return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#5a5a7a">${r.date.slice(5,7)+'/'+r.date.slice(8,10)}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c6af7" stop-opacity="0.25"/><stop offset="100%" stop-color="#7c6af7" stop-opacity="0"/></linearGradient></defs>${grid}${gl}<path d="${ap}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#7c6af7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
+function empLogin(){const data=loadData();const empId=parseInt(document.getElementById('login-emp-select').value);const pw=document.getElementById('login-emp-pw').value;const emp=data.employees.find(e=>e.id===empId);if(!emp){showToast('社員が見つかりません','var(--danger)');return;}if(emp.password!==''&&emp.password!==pw){showToast('パスワードが違います','var(--danger)');document.getElementById('login-emp-pw').value='';return;}currentEmpId=empId;document.getElementById('emp-login-screen').classList.remove('active');document.getElementById('emp-main-screen').style.display='block';document.getElementById('logged-in-name').textContent=emp.name+' さん';const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-banner').style.display=needsSetup?'block':'none';renderHome();renderWeight();}
+function empLogout(){currentEmpId=null;document.getElementById('emp-login-screen').classList.add('active');document.getElementById('emp-main-screen').style.display='none';document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',i===0);});document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-home').classList.add('active');initEmpLogin();}
+function renderHome(){if(!currentEmpId)return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const today=getTodayStr();const ym=getYM();const isDouble=isDoubleDay(today);document.getElementById('double-day-banner').style.display=isDouble?'block':'none';const totalPt=calcTotalPoints(emp);const monthPt=calcMonthPoints(emp,ym);const streak=calcStreak(emp);const monthDays=calcMonthDays(emp,ym);document.getElementById('total-points').textContent=totalPt;document.getElementById('monthly-points').textContent=monthPt;document.getElementById('streak-days').textContent=streak;document.getElementById('monthly-days').textContent=monthDays;document.getElementById('streak-count').textContent=streak;const toNext7=7-(streak%7);document.getElementById('streak-next').textContent=streak>0&&streak%7===0?'🎉 7日連続達成！':`7日連続まであと${toNext7}日`;const todayRec=emp.dailyRecords.find(r=>r.date===today);const mult=isDouble?2:1;if(todayRec&&todayRec.weight!=null){document.getElementById('today-weight-card').classList.add('done');document.getElementById('today-weight-badge').textContent='入力済';document.getElementById('today-weight-badge').className='today-input-badge badge-done';document.getElementById('today-weight-val').textContent=todayRec.weight.toFixed(1)+'kg';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-weight-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-weight-card').classList.remove('done');document.getElementById('today-weight-badge').textContent='未入力';document.getElementById('today-weight-badge').className='today-input-badge badge-yet';document.getElementById('today-weight-val').textContent='--';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt`;document.getElementById('today-weight-pt').className='today-input-pt pt-pending';}if(todayRec&&todayRec.steps!=null){document.getElementById('today-steps-card').classList.add('done');document.getElementById('today-steps-badge').textContent='入力済';document.getElementById('today-steps-badge').className='today-input-badge badge-done';document.getElementById('today-steps-val').textContent=todayRec.steps.toLocaleString()+'歩';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-steps-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-steps-card').classList.remove('done');document.getElementById('today-steps-badge').textContent='未入力';document.getElementById('today-steps-badge').className='today-input-badge badge-yet';document.getElementById('today-steps-val').textContent='--';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt`;document.getElementById('today-steps-pt').className='today-input-pt pt-pending';}if(todayRec){if(todayRec.weight!=null)document.getElementById('input-weight').value=todayRec.weight;if(todayRec.steps!=null)document.getElementById('input-steps').value=todayRec.steps;}const bp=document.getElementById('bonus-progress');const streakTo7=7-(streak%7);const monthTo20=Math.max(0,20-monthDays);bp.innerHTML=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>🔥 7日連続ボーナス (+5pt)</span><span style="color:var(--warn)">${streak%7}/7日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--warn);height:100%;width:${(streak%7)/7*100}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${streak>0&&streak%7===0?'🎉 達成！':`あと${streakTo7}日`}</div></div><div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>📅 月20日以上ボーナス (+10pt)</span><span style="color:var(--accent2)">${monthDays}/20日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--accent2);height:100%;width:${Math.min(monthDays/20*100,100)}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${monthDays>=20?'🎉 達成！':`あと${monthTo20}日`}</div></div>`;}
+function submitTodayRecord(){const wVal=document.getElementById('input-weight').value;const sVal=document.getElementById('input-steps').value;if(wVal===''&&sVal===''){showToast('体重か歩数を入力してください','var(--danger)');return;}const w=wVal!==''?parseFloat(wVal):null;const s=sVal!==''?parseInt(sVal):null;if(w!==null&&(isNaN(w)||w<30||w>200)){showToast('体重を正しく入力してください','var(--danger)');return;}if(s!==null&&(isNaN(s)||s<0||s>99999)){showToast('歩数を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const today=getTodayStr();const idx=emp.dailyRecords.findIndex(r=>r.date===today);const rec={date:today,weight:w,steps:s};if(idx>=0)emp.dailyRecords[idx]={...emp.dailyRecords[idx],...rec};else emp.dailyRecords.push(rec);if(w!==null){if(!emp.records)emp.records=[];const ri=emp.records.findIndex(r=>r.date===today);if(ri>=0)emp.records[ri].weight=w;else emp.records.push({date:today,weight:w,comment:'',late:false,recordedAt:today});}saveData(data);const isDouble=isDoubleDay(today);const mult=isDouble?2:1;let earned=0;if(w!==null)earned+=1*mult;if(s!==null)earned+=1*mult;showToast(isDouble?`+${earned}pt獲得！（2倍デー🎯）`:`+${earned}pt獲得！`);renderHome();renderWeight();}
+function renderWeight(){const wl=document.getElementById('weight-login-required');const wc=document.getElementById('weight-content');if(!currentEmpId){wl.style.display='block';wc.style.display='none';return;}wl.style.display='none';wc.style.display='block';const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-form-card').style.display=needsSetup?'block':'none';if(needsSetup){document.getElementById('setup-age').value=emp.age||'';document.getElementById('setup-height').value=emp.height||'';document.getElementById('setup-goal').value=emp.goal||'';}const recs=(emp.records||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}renderChart(recs,emp.goal);renderHistory(recs,emp);}
+function saveSetup(){const age=parseInt(document.getElementById('setup-age').value);const height=parseFloat(document.getElementById('setup-height').value);const goal=parseFloat(document.getElementById('setup-goal').value);if(isNaN(height)||height<140||height>220){showToast('身長を正しく入力してください','var(--danger)');return;}if(isNaN(goal)||goal<30||goal>200){showToast('目標体重を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;if(!isNaN(age))emp.age=age;emp.height=height;emp.goal=goal;saveData(data);document.getElementById('setup-form-card').style.display='none';document.getElementById('setup-banner').style.display='none';showToast('プロフィールを保存しました！');renderWeight();}
+function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${deltaStr?`<span style="font-size:11px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div style="display:flex;align-items:center;gap:8px;"><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div></div></div>${r.comment?`<div class="history-comment">"${r.comment}"</div>`:''}</div>`;}).join('');}
+function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#4a6080">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=20,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#4a6080">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const ab=y(minW);const ap=`M${x(0).toFixed(1)},${ab} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${ab} Z`;let gl='';if(goal){const gy=y(goal).toFixed(1);gl=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#00e5a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#00e5a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="#00b8ff"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1&&i%2!==0)return'';return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#4a6080">${r.date.slice(5,7)+'/'+r.date.slice(8,10)}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b8ff" stop-opacity="0.2"/><stop offset="100%" stop-color="#00b8ff" stop-opacity="0"/></linearGradient></defs>${grid}${gl}<path d="${ap}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#00b8ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
+function renderRanking(){const data=loadData();const ym=getYM();const ranked=data.employees.map(emp=>({name:emp.name,monthly:calcMonthPoints(emp,ym),total:calcTotalPoints(emp),streak:calcStreak(emp),days:calcMonthDays(emp,ym)}));const byMonthly=[...ranked].sort((a,b)=>b.monthly-a.monthly);const byTotal=[...ranked].sort((a,b)=>b.total-a.total);const rankColors=['rank-1','rank-2','rank-3'];const rankEmoji=['🥇','🥈','🥉'];function renderList(arr,el){el.innerHTML=arr.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">🔥${r.streak}日連続 ／ 今月${r.days}日入力</div></div><div class="rank-points">${r.monthly}<span>pt</span></div></div>`).join('');}renderList(byMonthly,document.getElementById('ranking-list'));document.getElementById('ranking-total-list').innerHTML=byTotal.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">今月${r.monthly}pt</div></div><div class="rank-points">${r.total}<span>pt</span></div></div>`).join('');}
 function checkAdminPw(){const data=loadData();if(document.getElementById('admin-pw-input').value===data.adminPw){document.getElementById('admin-locked').style.display='none';document.getElementById('admin-unlocked').style.display='block';renderAdminList();}else{showToast('パスワードが違います','var(--danger)');document.getElementById('admin-pw-input').value='';}}
 function lockAdmin(){document.getElementById('admin-locked').style.display='block';document.getElementById('admin-unlocked').style.display='none';document.getElementById('admin-pw-input').value='';}
-function changeAdminPw(){const current=document.getElementById('chg-pw-current').value;const newPw=document.getElementById('chg-pw-new').value;const confirm2=document.getElementById('chg-pw-confirm').value;const data=loadData();if(current!==data.adminPw){showToast('現在のパスワードが違います','var(--danger)');return;}if(newPw.length<6){showToast('新しいパスワードは6文字以上にしてください','var(--danger)');return;}if(newPw!==confirm2){showToast('新しいパスワードが一致しません','var(--danger)');return;}data.adminPw=newPw;saveData(data);document.getElementById('chg-pw-current').value='';document.getElementById('chg-pw-new').value='';document.getElementById('chg-pw-confirm').value='';showToast('管理者パスワードを変更しました！');}
-function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const deadlines=getThisMonthDeadlines();const now=getJPTime();el.innerHTML=data.employees.map(emp=>{const recs=emp.records.slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const diff=(latest&&emp.goal)?latest.weight-emp.goal:null;const diffStr=diff!==null?(diff>0?'+':'')+diff.toFixed(1)+'kg':'--';const diffColor=diff===null?'':diff<=0?'var(--accent2)':diff<=3?'var(--warn)':'var(--danger)';const missing=deadlines.filter(dl=>{const dlDate=new Date(dl+'T00:00:00');return now>dlDate&&!recs.some(r=>r.date===dl);});let badge='';if(missing.length>0)badge='<span class="badge badge-missing">未記録</span>';else if(diff===null)badge='<span class="badge badge-none">未設定</span>';else if(diff<=0)badge='<span class="badge badge-good">達成</span>';else if(diff<=5)badge='<span class="badge badge-warn">継続中</span>';else badge='<span class="badge badge-bad">要注意</span>';const lateCount=recs.filter(r=>r.late).length;const lateBadge=lateCount>0?`<span class="late-badge">遅延${lateCount}回</span>`:'';const noPwBadge=emp.password===''?'<span class="badge badge-nopw">PW未設定</span>':'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${lateBadge}${badge}${noPwBadge}</div><div class="admin-sub">${emp.height?emp.height+'cm':''} ${emp.age?'· '+emp.age+'歳':''} · 最終: ${latest?latest.date.replace(/-/g,'/'):'未記録'}</div></div><div class="admin-right"><div class="admin-weight" style="color:${diffColor}">${latest?latest.weight.toFixed(1)+'kg':'--'}<br><span style="font-size:10px;color:var(--text3)">${diffStr}</span></div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
-function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み（変更する場合のみ入力）':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent2)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
+function changeAdminPw(){const current=document.getElementById('chg-pw-current').value;const newPw=document.getElementById('chg-pw-new').value;const confirm2=document.getElementById('chg-pw-confirm').value;const data=loadData();if(current!==data.adminPw){showToast('現在のパスワードが違います','var(--danger)');return;}if(newPw.length<6){showToast('6文字以上にしてください','var(--danger)');return;}if(newPw!==confirm2){showToast('パスワードが一致しません','var(--danger)');return;}data.adminPw=newPw;saveData(data);document.getElementById('chg-pw-current').value='';document.getElementById('chg-pw-new').value='';document.getElementById('chg-pw-confirm').value='';showToast('管理者パスワードを変更しました！');}
+function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const ym=getYM();el.innerHTML=data.employees.map(emp=>{const totalPt=calcTotalPoints(emp);const monthPt=calcMonthPoints(emp,ym);const streak=calcStreak(emp);const recs=(emp.records||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const noPwBadge=emp.password===''?'<span class="badge badge-nopw">PW未設定</span>':'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${noPwBadge}</div><div class="admin-sub">今月${monthPt}pt ／ 累計${totalPt}pt ／ 🔥${streak}日連続</div></div><div class="admin-right"><div class="admin-weight">${latest?latest.weight.toFixed(1)+'kg':'--'}</div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
+function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
 function cancelEdit(){document.getElementById('edit-emp-card').style.display='none';}
 function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const age=parseInt(document.getElementById('edit-emp-age').value);const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);const newPw=document.getElementById('edit-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(age))emp.age=age;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;if(newPw!=='')emp.password=newPw;saveData(data);cancelEdit();initEmpLogin();renderAdminList();showToast('更新しました');}
-function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
-function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？記録も全て消えます。`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
+function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
+function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
 initEmpLogin();
 </script>
