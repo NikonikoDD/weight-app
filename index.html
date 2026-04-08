@@ -24,7 +24,6 @@
     body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
     .header{padding:env(safe-area-inset-top,0) 0 0;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
     .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;}
-    .header-logo{display:flex;align-items:center;gap:8px;}
     .header-logo-text{font-size:20px;font-weight:900;letter-spacing:-0.5px;}
     .header-logo-text .go{color:var(--accent);font-size:22px;}
     .tab-bar{display:flex;padding:0 16px 10px;gap:5px;}
@@ -110,10 +109,6 @@
     .admin-right{display:flex;align-items:center;gap:5px;flex-shrink:0;}
     .admin-weight{font-family:'DM Mono',monospace;font-size:13px;text-align:right;}
     .badge{display:inline-block;font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px;white-space:nowrap;}
-    .badge-good{background:rgba(0,229,160,0.15);color:var(--accent);}
-    .badge-warn{background:rgba(255,209,102,0.15);color:var(--warn);}
-    .badge-bad{background:rgba(239,71,111,0.15);color:var(--danger);}
-    .badge-none{background:var(--surface2);color:var(--text3);}
     .badge-nopw{background:rgba(0,184,255,0.15);color:var(--accent2);}
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
     .profile-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px 12px;}
@@ -137,9 +132,7 @@
 <body>
 <div class="header">
   <div class="header-inner">
-    <div class="header-logo">
-      <div class="header-logo-text">健体<span class="go">GO</span></div>
-    </div>
+    <div class="header-logo-text">健体<span class="go">GO</span></div>
     <div style="font-size:10px;color:var(--text3);" id="jp-time"></div>
   </div>
   <div class="tab-bar">
@@ -156,21 +149,11 @@
       <div class="login-tagline">毎日コツコツ続けて、健康習慣を身につける制度</div>
     </div>
     <div class="card">
-      <div class="form-row">
-        <label>氏名を選択</label>
-        <select id="login-emp-select"></select>
-      </div>
-      <div class="form-row">
-        <label>パスワード</label>
-        <input type="password" id="login-emp-pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')empLogin()">
-      </div>
+      <div class="form-row"><label>氏名を選択</label><select id="login-emp-select"></select></div>
+      <div class="form-row"><label>パスワード</label><input type="password" id="login-emp-pw" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')empLogin()"></div>
       <button class="btn btn-primary" onclick="empLogin()">ログイン</button>
     </div>
-    <div style="font-size:11px;color:var(--text3);text-align:center;padding:8px;line-height:1.8;">
-      体重入力：1pt ／ 歩数入力：1pt<br>
-      5・15・25日はポイント2倍 🎯<br>
-      7日連続：+5pt ／ 月20日以上：+10pt
-    </div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;padding:8px;line-height:1.8;">体重入力：1pt ／ 歩数入力：1pt<br>5・15・25日はポイント2倍 🎯<br>7日連続：+5pt ／ 月20日以上：+10pt</div>
   </div>
   <div id="page-home" class="page active" style="padding:0;overflow:hidden;">
     <div id="emp-main-screen" style="position:absolute;inset:0;overflow-y:auto;padding:16px 16px calc(env(safe-area-inset-bottom,0)+16px);display:none;-webkit-overflow-scrolling:touch;">
@@ -202,18 +185,12 @@
       </div>
       <div class="today-inputs">
         <div class="today-input-card" id="today-weight-card">
-          <div class="today-input-header">
-            <div class="today-input-title">⚖️ 体重</div>
-            <div class="today-input-badge badge-yet" id="today-weight-badge">未入力</div>
-          </div>
+          <div class="today-input-header"><div class="today-input-title">⚖️ 体重</div><div class="today-input-badge badge-yet" id="today-weight-badge">未入力</div></div>
           <div class="today-input-value" id="today-weight-val">--</div>
           <div class="today-input-pt pt-pending" id="today-weight-pt">+?pt</div>
         </div>
         <div class="today-input-card" id="today-steps-card">
-          <div class="today-input-header">
-            <div class="today-input-title">👟 歩数</div>
-            <div class="today-input-badge badge-yet" id="today-steps-badge">未入力</div>
-          </div>
+          <div class="today-input-header"><div class="today-input-title">👟 歩数</div><div class="today-input-badge badge-yet" id="today-steps-badge">未入力</div></div>
           <div class="today-input-value" id="today-steps-val">--</div>
           <div class="today-input-pt pt-pending" id="today-steps-pt">+?pt</div>
         </div>
@@ -221,21 +198,12 @@
       <div class="card">
         <div class="card-title">今日の記録</div>
         <div class="two-col">
-          <div class="form-row">
-            <label>体重 (kg)</label>
-            <input type="number" id="input-weight" step="0.1" min="30" max="200" placeholder="68.5">
-          </div>
-          <div class="form-row">
-            <label>歩数</label>
-            <input type="number" id="input-steps" step="1" min="0" max="99999" placeholder="8000">
-          </div>
+          <div class="form-row"><label>体重 (kg)</label><input type="number" id="input-weight" step="0.1" min="30" max="200" placeholder="68.5"></div>
+          <div class="form-row"><label>歩数</label><input type="number" id="input-steps" step="1" min="0" max="99999" placeholder="8000"></div>
         </div>
         <button class="btn btn-primary" onclick="submitTodayRecord()">記録してポイントをゲット！</button>
       </div>
-      <div class="card">
-        <div class="card-title">今月のボーナス進捗</div>
-        <div id="bonus-progress"></div>
-      </div>
+      <div class="card"><div class="card-title">今月のボーナス進捗</div><div id="bonus-progress"></div></div>
     </div>
   </div>
   <div id="page-weight" class="page">
@@ -246,10 +214,7 @@
     <div id="weight-content" style="display:none;">
       <div id="setup-form-card" class="card" style="display:none;">
         <div class="card-title">プロフィール設定（初回）</div>
-        <div class="two-col">
-          <div class="form-row"><label>年齢</label><input type="number" id="setup-age" min="18" max="80" placeholder="35"></div>
-          <div class="form-row"><label>身長 (cm)</label><input type="number" id="setup-height" min="140" max="220" placeholder="170"></div>
-        </div>
+        <div class="form-row"><label>身長 (cm)</label><input type="number" id="setup-height" min="140" max="220" placeholder="170"></div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="setup-goal" step="0.1" placeholder="65.0"></div>
         <button class="btn btn-primary" onclick="saveSetup()">設定を保存する</button>
       </div>
@@ -264,14 +229,8 @@
     </div>
   </div>
   <div id="page-ranking" class="page">
-    <div class="card">
-      <div class="card-title">今月のポイントランキング</div>
-      <div id="ranking-list"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">累計ポイントランキング</div>
-      <div id="ranking-total-list"></div>
-    </div>
+    <div class="card"><div class="card-title">今月のポイントランキング</div><div id="ranking-list"></div></div>
+    <div class="card"><div class="card-title">累計ポイントランキング</div><div id="ranking-total-list"></div></div>
   </div>
   <div id="page-admin" class="page">
     <div id="admin-locked">
@@ -293,16 +252,10 @@
         <div class="card-title">社員情報を編集</div>
         <input type="hidden" id="edit-emp-id">
         <div class="form-row"><label>氏名</label><input type="text" id="edit-emp-name"></div>
-        <div class="two-col">
-          <div class="form-row"><label>年齢</label><input type="number" id="edit-emp-age" min="18" max="80"></div>
-          <div class="form-row"><label>身長 (cm)</label><input type="number" id="edit-emp-height" min="140" max="220"></div>
-        </div>
+        <div class="form-row"><label>身長 (cm)</label><input type="number" id="edit-emp-height" min="140" max="220"></div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="edit-emp-goal" step="0.1"></div>
         <div class="section-divider">パスワード設定</div>
-        <div class="form-row">
-          <label>新しいパスワード（空欄で変更なし）</label>
-          <input type="password" id="edit-emp-pw" placeholder="新しいパスワードを入力">
-        </div>
+        <div class="form-row"><label>新しいパスワード（空欄で変更なし）</label><input type="password" id="edit-emp-pw" placeholder="新しいパスワードを入力"></div>
         <div id="edit-emp-pw-status" style="font-size:11px;margin-bottom:12px;"></div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-secondary" onclick="cancelEdit()">キャンセル</button>
@@ -312,10 +265,7 @@
       <div class="card">
         <div class="card-title">社員を追加</div>
         <div class="form-row"><label>氏名</label><input type="text" id="new-emp-name" placeholder="例: 園田 伸宏"></div>
-        <div class="two-col">
-          <div class="form-row"><label>年齢</label><input type="number" id="new-emp-age" placeholder="35" min="18" max="80"></div>
-          <div class="form-row"><label>身長 (cm)</label><input type="number" id="new-emp-height" placeholder="170" min="140" max="220"></div>
-        </div>
+        <div class="form-row"><label>身長 (cm)</label><input type="number" id="new-emp-height" placeholder="170" min="140" max="220"></div>
         <div class="form-row"><label>目標体重 (kg)</label><input type="number" id="new-emp-goal" placeholder="65.0" step="0.1"></div>
         <div class="form-row"><label>パスワード</label><input type="password" id="new-emp-pw" placeholder="パスワードを設定"></div>
         <button class="btn btn-primary" onclick="addEmployee()">追加する</button>
@@ -348,7 +298,7 @@ function calcMonthPoints(emp,ym){if(!emp.dailyRecords||!emp.dailyRecords.length)
 function calcStreak(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>b.date.localeCompare(a.date));const today=getTodayStr();let streak=0;let checkDate=today;for(const r of sorted){if(r.date===checkDate){streak++;const d=new Date(checkDate+'T00:00:00');d.setDate(d.getDate()-1);checkDate=d.toISOString().slice(0,10);}else if(r.date<checkDate){break;}}return streak;}
 function calcMonthDays(emp,ym){if(!emp.dailyRecords)return 0;return emp.dailyRecords.filter(r=>r.date.startsWith(ym)).length;}
 function loadData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d){if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;d.employees.forEach(e=>{if(e.password===undefined)e.password='';if(!e.dailyRecords)e.dailyRecords=[];if(e.records&&e.records.length&&!e._migrated){e.records.forEach(r=>{if(!e.dailyRecords.find(dr=>dr.date===r.date)){e.dailyRecords.push({date:r.date,weight:r.weight,steps:null,comment:r.comment||''});}});e._migrated=true;}});return d;}return defaultData();}catch(e){return defaultData();}}
-function defaultData(){const emps=[];for(let i=1;i<=10;i++){emps.push({id:i,name:`社員 ${String(i).padStart(2,'0')}`,age:30+i,height:165+i,goal:60+i,password:'',dailyRecords:[],records:[]});}return{adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:11};}
+function defaultData(){const emps=[];for(let i=1;i<=10;i++){emps.push({id:i,name:`社員 ${String(i).padStart(2,'0')}`,height:165+i,goal:60+i,password:'',dailyRecords:[],records:[]});}return{adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:11};}
 function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
 function calcBMI(w,hcm){return(w/((hcm/100)**2)).toFixed(1);}
 function bmiLabel(b){const v=parseFloat(b);if(v<18.5)return'低体重';if(v<25)return'普通';if(v<30)return'肥満1度';return'肥満2度+';}
@@ -361,19 +311,19 @@ function empLogin(){const data=loadData();const empId=parseInt(document.getEleme
 function empLogout(){currentEmpId=null;document.getElementById('emp-login-screen').classList.add('active');document.getElementById('emp-main-screen').style.display='none';document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',i===0);});document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-home').classList.add('active');initEmpLogin();}
 function renderHome(){if(!currentEmpId)return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const today=getTodayStr();const ym=getYM();const isDouble=isDoubleDay(today);document.getElementById('double-day-banner').style.display=isDouble?'block':'none';const totalPt=calcTotalPoints(emp);const monthPt=calcMonthPoints(emp,ym);const streak=calcStreak(emp);const monthDays=calcMonthDays(emp,ym);document.getElementById('total-points').textContent=totalPt;document.getElementById('monthly-points').textContent=monthPt;document.getElementById('streak-days').textContent=streak;document.getElementById('monthly-days').textContent=monthDays;document.getElementById('streak-count').textContent=streak;const toNext7=7-(streak%7);document.getElementById('streak-next').textContent=streak>0&&streak%7===0?'🎉 7日連続達成！':`7日連続まであと${toNext7}日`;const todayRec=emp.dailyRecords.find(r=>r.date===today);const mult=isDouble?2:1;if(todayRec&&todayRec.weight!=null){document.getElementById('today-weight-card').classList.add('done');document.getElementById('today-weight-badge').textContent='入力済';document.getElementById('today-weight-badge').className='today-input-badge badge-done';document.getElementById('today-weight-val').textContent=todayRec.weight.toFixed(1)+'kg';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-weight-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-weight-card').classList.remove('done');document.getElementById('today-weight-badge').textContent='未入力';document.getElementById('today-weight-badge').className='today-input-badge badge-yet';document.getElementById('today-weight-val').textContent='--';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt`;document.getElementById('today-weight-pt').className='today-input-pt pt-pending';}if(todayRec&&todayRec.steps!=null){document.getElementById('today-steps-card').classList.add('done');document.getElementById('today-steps-badge').textContent='入力済';document.getElementById('today-steps-badge').className='today-input-badge badge-done';document.getElementById('today-steps-val').textContent=todayRec.steps.toLocaleString()+'歩';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-steps-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-steps-card').classList.remove('done');document.getElementById('today-steps-badge').textContent='未入力';document.getElementById('today-steps-badge').className='today-input-badge badge-yet';document.getElementById('today-steps-val').textContent='--';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt`;document.getElementById('today-steps-pt').className='today-input-pt pt-pending';}if(todayRec){if(todayRec.weight!=null)document.getElementById('input-weight').value=todayRec.weight;if(todayRec.steps!=null)document.getElementById('input-steps').value=todayRec.steps;}const bp=document.getElementById('bonus-progress');const streakTo7=7-(streak%7);const monthTo20=Math.max(0,20-monthDays);bp.innerHTML=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>🔥 7日連続ボーナス (+5pt)</span><span style="color:var(--warn)">${streak%7}/7日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--warn);height:100%;width:${(streak%7)/7*100}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${streak>0&&streak%7===0?'🎉 達成！':`あと${streakTo7}日`}</div></div><div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>📅 月20日以上ボーナス (+10pt)</span><span style="color:var(--accent2)">${monthDays}/20日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--accent2);height:100%;width:${Math.min(monthDays/20*100,100)}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${monthDays>=20?'🎉 達成！':`あと${monthTo20}日`}</div></div>`;}
 function submitTodayRecord(){const wVal=document.getElementById('input-weight').value;const sVal=document.getElementById('input-steps').value;if(wVal===''&&sVal===''){showToast('体重か歩数を入力してください','var(--danger)');return;}const w=wVal!==''?parseFloat(wVal):null;const s=sVal!==''?parseInt(sVal):null;if(w!==null&&(isNaN(w)||w<30||w>200)){showToast('体重を正しく入力してください','var(--danger)');return;}if(s!==null&&(isNaN(s)||s<0||s>99999)){showToast('歩数を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const today=getTodayStr();const idx=emp.dailyRecords.findIndex(r=>r.date===today);const rec={date:today,weight:w,steps:s};if(idx>=0)emp.dailyRecords[idx]={...emp.dailyRecords[idx],...rec};else emp.dailyRecords.push(rec);if(w!==null){if(!emp.records)emp.records=[];const ri=emp.records.findIndex(r=>r.date===today);if(ri>=0)emp.records[ri].weight=w;else emp.records.push({date:today,weight:w,comment:'',late:false,recordedAt:today});}saveData(data);const isDouble=isDoubleDay(today);const mult=isDouble?2:1;let earned=0;if(w!==null)earned+=1*mult;if(s!==null)earned+=1*mult;showToast(isDouble?`+${earned}pt獲得！（2倍デー🎯）`:`+${earned}pt獲得！`);renderHome();renderWeight();}
-function renderWeight(){const wl=document.getElementById('weight-login-required');const wc=document.getElementById('weight-content');if(!currentEmpId){wl.style.display='block';wc.style.display='none';return;}wl.style.display='none';wc.style.display='block';const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-form-card').style.display=needsSetup?'block':'none';if(needsSetup){document.getElementById('setup-age').value=emp.age||'';document.getElementById('setup-height').value=emp.height||'';document.getElementById('setup-goal').value=emp.goal||'';}const recs=(emp.records||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">年齢</div><div class="profile-item-value">${emp.age||'--'} 歳</div></div><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}renderChart(recs,emp.goal);renderHistory(recs,emp);}
-function saveSetup(){const age=parseInt(document.getElementById('setup-age').value);const height=parseFloat(document.getElementById('setup-height').value);const goal=parseFloat(document.getElementById('setup-goal').value);if(isNaN(height)||height<140||height>220){showToast('身長を正しく入力してください','var(--danger)');return;}if(isNaN(goal)||goal<30||goal>200){showToast('目標体重を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;if(!isNaN(age))emp.age=age;emp.height=height;emp.goal=goal;saveData(data);document.getElementById('setup-form-card').style.display='none';document.getElementById('setup-banner').style.display='none';showToast('プロフィールを保存しました！');renderWeight();}
-function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${deltaStr?`<span style="font-size:11px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div style="display:flex;align-items:center;gap:8px;"><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div></div></div>${r.comment?`<div class="history-comment">"${r.comment}"</div>`:''}</div>`;}).join('');}
+function renderWeight(){const wl=document.getElementById('weight-login-required');const wc=document.getElementById('weight-content');if(!currentEmpId){wl.style.display='block';wc.style.display='none';return;}wl.style.display='none';wc.style.display='block';const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-form-card').style.display=needsSetup?'block':'none';if(needsSetup){document.getElementById('setup-height').value=emp.height||'';document.getElementById('setup-goal').value=emp.goal||'';}const recs=(emp.records||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1].weight:null;document.getElementById('profile-card').innerHTML=`<div class="card-title">プロフィール</div><div class="profile-grid"><div class="profile-item"><div class="profile-item-label">身長</div><div class="profile-item-value">${emp.height||'--'} cm</div></div><div class="profile-item"><div class="profile-item-label">目標体重</div><div class="profile-item-value">${emp.goal?emp.goal+' kg':'--'}</div></div><div class="profile-item"><div class="profile-item-label">目標BMI</div><div class="profile-item-value">${emp.height&&emp.goal?calcBMI(emp.goal,emp.height):'--'}</div></div></div>`;document.getElementById('cur-weight').textContent=latest!==null?latest.toFixed(1):'--';if(latest&&emp.height){const bmi=calcBMI(latest,emp.height);const el=document.getElementById('cur-bmi');el.textContent=bmi;el.className='metric-value '+bmiClass(bmi);document.getElementById('bmi-label').textContent=bmiLabel(bmi);}else{document.getElementById('cur-bmi').textContent='--';document.getElementById('bmi-label').textContent='--';}const diffEl=document.getElementById('diff-weight');if(latest!==null&&emp.goal){const diff=latest-emp.goal;diffEl.textContent=(diff>0?'+':'')+diff.toFixed(1);diffEl.className='metric-value '+(diff<=0?'good':diff<=3?'warn':'bad');}else{diffEl.textContent='--';diffEl.className='metric-value';}renderChart(recs,emp.goal);renderHistory(recs,emp);}
+function saveSetup(){const height=parseFloat(document.getElementById('setup-height').value);const goal=parseFloat(document.getElementById('setup-goal').value);if(isNaN(height)||height<140||height>220){showToast('身長を正しく入力してください','var(--danger)');return;}if(isNaN(goal)||goal<30||goal>200){showToast('目標体重を正しく入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;emp.height=height;emp.goal=goal;saveData(data);document.getElementById('setup-form-card').style.display='none';document.getElementById('setup-banner').style.display='none';showToast('プロフィールを保存しました！');renderWeight();}
+function renderHistory(recs,emp){const sorted=recs.slice().sort((a,b)=>b.date.localeCompare(a.date));const el=document.getElementById('history-list');if(!sorted.length){el.innerHTML='<div class="empty">まだ記録がありません</div>';return;}el.innerHTML=sorted.map((r,i)=>{const prev=sorted[i+1];const delta=prev?r.weight-prev.weight:null;const deltaStr=delta!==null?(delta>0?'▲':'▼')+Math.abs(delta).toFixed(1)+'kg':'';const deltaColor=delta!==null?(delta<0?'var(--accent)':delta>0?'var(--danger)':'var(--text3)'):'';const bmi=emp.height?calcBMI(r.weight,emp.height):null;return`<div class="history-item"><div class="history-top"><div><span class="history-date">${r.date.replace(/-/g,'/')}</span>${deltaStr?`<span style="font-size:11px;color:${deltaColor};margin-left:8px;">${deltaStr}</span>`:''}</div><div><div class="history-weight">${r.weight.toFixed(1)}kg</div>${bmi?`<div style="font-size:10px;color:var(--text3);text-align:right;">BMI ${bmi}</div>`:''}</div></div></div>`;}).join('');}
 function renderChart(recs,goal){const svg=document.getElementById('weight-chart');const sorted=recs.slice().sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);if(sorted.length<2){svg.innerHTML='<text x="170" y="80" text-anchor="middle" font-size="12" fill="#4a6080">2件以上の記録でグラフ表示</text>';return;}const W=340,H=160,pl=44,pr=20,pt=16,pb=28;const weights=sorted.map(r=>r.weight);const allVals=goal?[...weights,goal]:weights;const minW=Math.floor(Math.min(...allVals))-1;const maxW=Math.ceil(Math.max(...allVals))+1;const x=i=>pl+(i/(sorted.length-1))*(W-pl-pr);const y=v=>H-pb-((v-minW)/(maxW-minW))*(H-pt-pb);let grid='';for(let i=0;i<=4;i++){const v=minW+(maxW-minW)*i/4;const yy=y(v);grid+=`<line x1="${pl}" y1="${yy.toFixed(1)}" x2="${W-pr}" y2="${yy.toFixed(1)}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;grid+=`<text x="${pl-6}" y="${(yy+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#4a6080">${v.toFixed(0)}</text>`;}const pts=sorted.map((r,i)=>`${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ');const ab=y(minW);const ap=`M${x(0).toFixed(1)},${ab} `+sorted.map((r,i)=>`L${x(i).toFixed(1)},${y(r.weight).toFixed(1)}`).join(' ')+` L${x(sorted.length-1).toFixed(1)},${ab} Z`;let gl='';if(goal){const gy=y(goal).toFixed(1);gl=`<line x1="${pl}" y1="${gy}" x2="${W-pr}" y2="${gy}" stroke="#00e5a0" stroke-width="1" stroke-dasharray="5,3"/><text x="${W-pr+2}" y="${(parseFloat(gy)+4).toFixed(0)}" font-size="9" fill="#00e5a0">目標</text>`;}const dots=sorted.map((r,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(r.weight).toFixed(1)}" r="3.5" fill="#00b8ff"/>`).join('');const labels=sorted.map((r,i)=>{if(sorted.length>6&&i!==0&&i!==sorted.length-1&&i%2!==0)return'';return`<text x="${x(i).toFixed(1)}" y="${H-pb+14}" text-anchor="middle" font-size="9" fill="#4a6080">${r.date.slice(5,7)+'/'+r.date.slice(8,10)}</text>`;}).join('');svg.innerHTML=`<defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00b8ff" stop-opacity="0.2"/><stop offset="100%" stop-color="#00b8ff" stop-opacity="0"/></linearGradient></defs>${grid}${gl}<path d="${ap}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="#00b8ff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}${labels}`;}
-function renderRanking(){const data=loadData();const ym=getYM();const ranked=data.employees.map(emp=>({name:emp.name,monthly:calcMonthPoints(emp,ym),total:calcTotalPoints(emp),streak:calcStreak(emp),days:calcMonthDays(emp,ym)}));const byMonthly=[...ranked].sort((a,b)=>b.monthly-a.monthly);const byTotal=[...ranked].sort((a,b)=>b.total-a.total);const rankColors=['rank-1','rank-2','rank-3'];const rankEmoji=['🥇','🥈','🥉'];function renderList(arr,el){el.innerHTML=arr.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">🔥${r.streak}日連続 ／ 今月${r.days}日入力</div></div><div class="rank-points">${r.monthly}<span>pt</span></div></div>`).join('');}renderList(byMonthly,document.getElementById('ranking-list'));document.getElementById('ranking-total-list').innerHTML=byTotal.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">今月${r.monthly}pt</div></div><div class="rank-points">${r.total}<span>pt</span></div></div>`).join('');}
+function renderRanking(){const data=loadData();const ym=getYM();const ranked=data.employees.map(emp=>({name:emp.name,monthly:calcMonthPoints(emp,ym),total:calcTotalPoints(emp),streak:calcStreak(emp),days:calcMonthDays(emp,ym)}));const byMonthly=[...ranked].sort((a,b)=>b.monthly-a.monthly);const byTotal=[...ranked].sort((a,b)=>b.total-a.total);const rankColors=['rank-1','rank-2','rank-3'];const rankEmoji=['🥇','🥈','🥉'];document.getElementById('ranking-list').innerHTML=byMonthly.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">🔥${r.streak}日連続 ／ 今月${r.days}日入力</div></div><div class="rank-points">${r.monthly}<span>pt</span></div></div>`).join('');document.getElementById('ranking-total-list').innerHTML=byTotal.map((r,i)=>`<div class="ranking-item"><div class="rank-num ${i<3?rankColors[i]:'rank-other'}">${i<3?rankEmoji[i]:i+1}</div><div class="rank-info"><div class="rank-name">${r.name}</div><div class="rank-sub">今月${r.monthly}pt</div></div><div class="rank-points">${r.total}<span>pt</span></div></div>`).join('');}
 function checkAdminPw(){const data=loadData();if(document.getElementById('admin-pw-input').value===data.adminPw){document.getElementById('admin-locked').style.display='none';document.getElementById('admin-unlocked').style.display='block';renderAdminList();}else{showToast('パスワードが違います','var(--danger)');document.getElementById('admin-pw-input').value='';}}
 function lockAdmin(){document.getElementById('admin-locked').style.display='block';document.getElementById('admin-unlocked').style.display='none';document.getElementById('admin-pw-input').value='';}
 function changeAdminPw(){const current=document.getElementById('chg-pw-current').value;const newPw=document.getElementById('chg-pw-new').value;const confirm2=document.getElementById('chg-pw-confirm').value;const data=loadData();if(current!==data.adminPw){showToast('現在のパスワードが違います','var(--danger)');return;}if(newPw.length<6){showToast('6文字以上にしてください','var(--danger)');return;}if(newPw!==confirm2){showToast('パスワードが一致しません','var(--danger)');return;}data.adminPw=newPw;saveData(data);document.getElementById('chg-pw-current').value='';document.getElementById('chg-pw-new').value='';document.getElementById('chg-pw-confirm').value='';showToast('管理者パスワードを変更しました！');}
 function renderAdminList(){const data=loadData();const el=document.getElementById('admin-list');if(!data.employees.length){el.innerHTML='<div class="empty">社員を追加してください</div>';return;}const ym=getYM();el.innerHTML=data.employees.map(emp=>{const totalPt=calcTotalPoints(emp);const monthPt=calcMonthPoints(emp,ym);const streak=calcStreak(emp);const recs=(emp.records||[]).slice().sort((a,b)=>a.date.localeCompare(b.date));const latest=recs.length?recs[recs.length-1]:null;const noPwBadge=emp.password===''?'<span class="badge badge-nopw">PW未設定</span>':'';return`<div class="admin-row"><div class="admin-row-top"><div class="admin-info"><div class="admin-name-line"><span class="admin-name">${emp.name}</span>${noPwBadge}</div><div class="admin-sub">今月${monthPt}pt ／ 累計${totalPt}pt ／ 🔥${streak}日連続</div></div><div class="admin-right"><div class="admin-weight">${latest?latest.weight.toFixed(1)+'kg':'--'}</div><button class="btn btn-secondary btn-sm" onclick="openEdit(${emp.id})">編集</button><button class="btn btn-danger btn-sm" onclick="deleteEmployee(${emp.id})">削除</button></div></div></div>`;}).join('');}
-function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-age').value=emp.age||'';document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
+function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
 function cancelEdit(){document.getElementById('edit-emp-card').style.display='none';}
-function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const age=parseInt(document.getElementById('edit-emp-age').value);const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);const newPw=document.getElementById('edit-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(age))emp.age=age;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;if(newPw!=='')emp.password=newPw;saveData(data);cancelEdit();initEmpLogin();renderAdminList();showToast('更新しました');}
-function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const age=parseInt(document.getElementById('new-emp-age').value);const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,age:isNaN(age)?null:age,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-age').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
+function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);const newPw=document.getElementById('edit-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;if(newPw!=='')emp.password=newPw;saveData(data);cancelEdit();initEmpLogin();renderAdminList();showToast('更新しました');}
+function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
 function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
 initEmpLogin();
