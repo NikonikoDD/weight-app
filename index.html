@@ -127,9 +127,17 @@
     .section-divider{margin:14px 0 8px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;}
     .double-day-banner{background:linear-gradient(90deg,rgba(255,107,53,0.15),rgba(255,209,102,0.1));border:1px solid rgba(255,107,53,0.3);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--accent3);font-weight:700;text-align:center;}
     .setup-banner{background:rgba(0,184,255,0.08);border:1px solid rgba(0,184,255,0.2);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:12px;font-size:12px;color:var(--accent2);}
+    #loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:500;color:var(--text2);font-size:13px;padding:24px;text-align:center;}
+    #loading-overlay .spin{width:38px;height:38px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:kg-spin 0.8s linear infinite;}
+    @keyframes kg-spin{to{transform:rotate(360deg);}}
+    .hidden{display:none!important;}
   </style>
 </head>
 <body>
+<div id="loading-overlay">
+  <div class="spin"></div>
+  <div>みんなのデータを読み込み中...</div>
+</div>
 <div class="header">
   <div class="header-inner">
     <div class="header-logo-text">健体<span class="go">GO</span></div>
@@ -281,14 +289,35 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
+
 <script>
-const STORAGE_KEY='kengo_app_v1';
+const firebaseConfig = {
+  apiKey: "AIzaSyAI6gbkf_NPWrc8DFJxGEDR9s7Ir800zzc",
+  authDomain: "kentai-go.firebaseapp.com",
+  databaseURL: "https://kentai-go-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kentai-go",
+  storageBucket: "kentai-go.firebasestorage.app",
+  messagingSenderId: "776657933790",
+  appId: "1:776657933790:web:02f48d8bf519ec9387f94f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const DB_PATH = 'appData';
+
 const DEFAULT_ADMIN_PW='nagi1234';
+let appData = null;
+let appInitialized = false;
+let currentEmpId = null;
+
 function getJPTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));}
 function getTodayStr(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
 function getYM(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;}
-function updateClock(){const now=getJPTime();document.getElementById('jp-time').textContent=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});}
+function updateClock(){const now=getJPTime();const el=document.getElementById('jp-time');if(el)el.textContent=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});}
 updateClock();setInterval(updateClock,60000);
+
 function isDoubleDay(dateStr){const d=parseInt(dateStr.slice(8,10));return d===5||d===15||d===25;}
 function calcDayPoints(rec){let pt=0;const mult=isDoubleDay(rec.date)?2:1;if(rec.weight!=null)pt+=1*mult;if(rec.steps!=null)pt+=1*mult;return pt;}
 function calcStreakBonus(records){if(!records.length)return 0;let bonus=0;let streak=0;let prevDate=null;for(const r of records){if(!prevDate){streak=1;}else{const prev=new Date(prevDate+'T00:00:00');const cur=new Date(r.date+'T00:00:00');const diff=(cur-prev)/(1000*60*60*24);if(diff===1)streak++;else streak=1;}if(streak>0&&streak%7===0)bonus+=5;prevDate=r.date;}return bonus;}
@@ -297,16 +326,47 @@ function calcTotalPoints(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)ret
 function calcMonthPoints(emp,ym){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>a.date.localeCompare(b.date));const monthRecs=sorted.filter(r=>r.date.startsWith(ym));let pt=monthRecs.reduce((s,r)=>s+calcDayPoints(r),0);pt+=calcMonthBonus(sorted,ym);return pt;}
 function calcStreak(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>b.date.localeCompare(a.date));const today=getTodayStr();let streak=0;let checkDate=today;for(const r of sorted){if(r.date===checkDate){streak++;const d=new Date(checkDate+'T00:00:00');d.setDate(d.getDate()-1);checkDate=d.toISOString().slice(0,10);}else if(r.date<checkDate){break;}}return streak;}
 function calcMonthDays(emp,ym){if(!emp.dailyRecords)return 0;return emp.dailyRecords.filter(r=>r.date.startsWith(ym)).length;}
-function loadData(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY));if(d){if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;d.employees.forEach(e=>{if(e.password===undefined)e.password='';if(!e.dailyRecords)e.dailyRecords=[];if(e.records&&e.records.length&&!e._migrated){e.records.forEach(r=>{if(!e.dailyRecords.find(dr=>dr.date===r.date)){e.dailyRecords.push({date:r.date,weight:r.weight,steps:null,comment:r.comment||''});}});e._migrated=true;}});return d;}return defaultData();}catch(e){return defaultData();}}
-function defaultData(){const emps=[];for(let i=1;i<=10;i++){emps.push({id:i,name:`社員 ${String(i).padStart(2,'0')}`,height:165+i,goal:60+i,password:'',dailyRecords:[],records:[]});}return{adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:11};}
-function saveData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
+
+function defaultData(){
+  const names=['園田信広','夏山宣明','西谷昌弘','阿部寛','武田将人','田中耕平','大里健太郎','鈴木涼太','佐藤美憲','佐藤洋行','チャンバオチュン','ウェヤンテッテツ','ウィンモー','花山慎治','鈴木里菜','澁谷海武樹','小松優作'];
+  const emps=names.map((name,i)=>({id:i+1,name:name,height:null,goal:null,password:'0000',dailyRecords:[],records:[]}));
+  return {adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:names.length+1};
+}
+function normalizeData(raw){
+  const d=raw||{};
+  if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;
+  let emps=d.employees;
+  if(!emps)emps=[];
+  if(!Array.isArray(emps))emps=Object.values(emps);
+  emps.forEach(e=>{
+    if(e.password===undefined||e.password===null)e.password='';
+    if(!e.dailyRecords)e.dailyRecords=[];
+    if(!Array.isArray(e.dailyRecords))e.dailyRecords=Object.values(e.dailyRecords);
+    if(!e.records)e.records=[];
+    if(!Array.isArray(e.records))e.records=Object.values(e.records);
+    if(e.height===undefined)e.height=null;
+    if(e.goal===undefined)e.goal=null;
+  });
+  d.employees=emps;
+  if(!d.nextId)d.nextId=(emps.reduce((m,e)=>Math.max(m,e.id||0),0)||0)+1;
+  return d;
+}
+function loadData(){
+  if(!appData)return defaultData();
+  return JSON.parse(JSON.stringify(appData));
+}
+function saveData(d){
+  appData=d;
+  db.ref(DB_PATH).set(d).catch(e=>showToast('保存に失敗しました: '+e.message,'var(--danger)'));
+}
+
 function calcBMI(w,hcm){return(w/((hcm/100)**2)).toFixed(1);}
 function bmiLabel(b){const v=parseFloat(b);if(v<18.5)return'低体重';if(v<25)return'普通';if(v<30)return'肥満1度';return'肥満2度+';}
 function bmiClass(b){const v=parseFloat(b);if(v<18.5)return'warn';if(v<25)return'good';return'bad';}
 function showToast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--accent)';t.style.color=color?'#fff':'#0f1923';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-let currentEmpId=null;
+
 function showPage(p,btn){document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));btn.classList.add('active');if(!currentEmpId){if(p==='ranking'){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-ranking').classList.add('active');renderRanking();}else if(p==='admin'){document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-admin').classList.add('active');}else{document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('emp-login-screen').classList.add('active');}return;}document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('emp-login-screen').style.display='none';document.getElementById('page-'+p).classList.add('active');if(p==='home')renderHome();if(p==='weight')renderWeight();if(p==='ranking')renderRanking();if(p==='admin')renderAdminList();}
-function initEmpLogin(){const data=loadData();const sel=document.getElementById('login-emp-select');sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');document.getElementById('login-emp-pw').value='';}
+function initEmpLogin(){const data=loadData();const sel=document.getElementById('login-emp-select');const prev=sel.value;sel.innerHTML=data.employees.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');if(prev)sel.value=prev;}
 function empLogin(){const data=loadData();const empId=parseInt(document.getElementById('login-emp-select').value);const pw=document.getElementById('login-emp-pw').value;const emp=data.employees.find(e=>e.id===empId);if(!emp){showToast('社員が見つかりません','var(--danger)');return;}if(emp.password!==''&&emp.password!==pw){showToast('パスワードが違います','var(--danger)');document.getElementById('login-emp-pw').value='';return;}currentEmpId=empId;document.getElementById('emp-login-screen').classList.remove('active');document.getElementById('emp-main-screen').style.display='block';document.getElementById('logged-in-name').textContent=emp.name+' さん';const needsSetup=!emp.height||!emp.goal;document.getElementById('setup-banner').style.display=needsSetup?'block':'none';renderHome();renderWeight();}
 function empLogout(){currentEmpId=null;document.getElementById('emp-login-screen').classList.add('active');document.getElementById('emp-main-screen').style.display='none';document.querySelectorAll('.tab').forEach((el,i)=>{el.classList.toggle('active',i===0);});document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));document.getElementById('page-home').classList.add('active');initEmpLogin();}
 function renderHome(){if(!currentEmpId)return;const data=loadData();const emp=data.employees.find(e=>e.id===currentEmpId);if(!emp)return;const today=getTodayStr();const ym=getYM();const isDouble=isDoubleDay(today);document.getElementById('double-day-banner').style.display=isDouble?'block':'none';const totalPt=calcTotalPoints(emp);const monthPt=calcMonthPoints(emp,ym);const streak=calcStreak(emp);const monthDays=calcMonthDays(emp,ym);document.getElementById('total-points').textContent=totalPt;document.getElementById('monthly-points').textContent=monthPt;document.getElementById('streak-days').textContent=streak;document.getElementById('monthly-days').textContent=monthDays;document.getElementById('streak-count').textContent=streak;const toNext7=7-(streak%7);document.getElementById('streak-next').textContent=streak>0&&streak%7===0?'🎉 7日連続達成！':`7日連続まであと${toNext7}日`;const todayRec=emp.dailyRecords.find(r=>r.date===today);const mult=isDouble?2:1;if(todayRec&&todayRec.weight!=null){document.getElementById('today-weight-card').classList.add('done');document.getElementById('today-weight-badge').textContent='入力済';document.getElementById('today-weight-badge').className='today-input-badge badge-done';document.getElementById('today-weight-val').textContent=todayRec.weight.toFixed(1)+'kg';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-weight-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-weight-card').classList.remove('done');document.getElementById('today-weight-badge').textContent='未入力';document.getElementById('today-weight-badge').className='today-input-badge badge-yet';document.getElementById('today-weight-val').textContent='--';document.getElementById('today-weight-pt').textContent=`+${1*mult}pt`;document.getElementById('today-weight-pt').className='today-input-pt pt-pending';}if(todayRec&&todayRec.steps!=null){document.getElementById('today-steps-card').classList.add('done');document.getElementById('today-steps-badge').textContent='入力済';document.getElementById('today-steps-badge').className='today-input-badge badge-done';document.getElementById('today-steps-val').textContent=todayRec.steps.toLocaleString()+'歩';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt 獲得`;document.getElementById('today-steps-pt').className='today-input-pt pt-earn';}else{document.getElementById('today-steps-card').classList.remove('done');document.getElementById('today-steps-badge').textContent='未入力';document.getElementById('today-steps-badge').className='today-input-badge badge-yet';document.getElementById('today-steps-val').textContent='--';document.getElementById('today-steps-pt').textContent=`+${1*mult}pt`;document.getElementById('today-steps-pt').className='today-input-pt pt-pending';}if(todayRec){if(todayRec.weight!=null)document.getElementById('input-weight').value=todayRec.weight;if(todayRec.steps!=null)document.getElementById('input-steps').value=todayRec.steps;}const bp=document.getElementById('bonus-progress');const streakTo7=7-(streak%7);const monthTo20=Math.max(0,20-monthDays);bp.innerHTML=`<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>🔥 7日連続ボーナス (+5pt)</span><span style="color:var(--warn)">${streak%7}/7日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--warn);height:100%;width:${(streak%7)/7*100}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${streak>0&&streak%7===0?'🎉 達成！':`あと${streakTo7}日`}</div></div><div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;"><span>📅 月20日以上ボーナス (+10pt)</span><span style="color:var(--accent2)">${monthDays}/20日</span></div><div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;"><div style="background:var(--accent2);height:100%;width:${Math.min(monthDays/20*100,100)}%;border-radius:4px;transition:width 0.5s;"></div></div><div style="font-size:10px;color:var(--text3);margin-top:3px;">${monthDays>=20?'🎉 達成！':`あと${monthTo20}日`}</div></div>`;}
@@ -323,10 +383,36 @@ function renderAdminList(){const data=loadData();const el=document.getElementByI
 function openEdit(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;document.getElementById('edit-emp-id').value=id;document.getElementById('edit-emp-name').value=emp.name;document.getElementById('edit-emp-height').value=emp.height||'';document.getElementById('edit-emp-goal').value=emp.goal||'';document.getElementById('edit-emp-pw').value='';document.getElementById('edit-emp-pw-status').textContent=emp.password?'✓ パスワード設定済み':'⚠ パスワード未設定';document.getElementById('edit-emp-pw-status').style.color=emp.password?'var(--accent)':'var(--warn)';document.getElementById('edit-emp-card').style.display='block';document.getElementById('edit-emp-card').scrollIntoView({behavior:'smooth'});}
 function cancelEdit(){document.getElementById('edit-emp-card').style.display='none';}
 function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').value);const name=document.getElementById('edit-emp-name').value.trim();const height=parseFloat(document.getElementById('edit-emp-height').value);const goal=parseFloat(document.getElementById('edit-emp-goal').value);const newPw=document.getElementById('edit-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;emp.name=name;if(!isNaN(height))emp.height=height;if(!isNaN(goal))emp.goal=goal;if(newPw!=='')emp.password=newPw;saveData(data);cancelEdit();initEmpLogin();renderAdminList();showToast('更新しました');}
-function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
+function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name:name,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
 function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
+
+function bootUI(){
+  document.getElementById('loading-overlay').classList.add('hidden');
+  initEmpLogin();
+}
+function refreshCurrentView(){
+  const ae=document.activeElement;
+  if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))return;
+  if(document.getElementById('emp-login-screen').classList.contains('active'))initEmpLogin();
+  const activePage=document.querySelector('.page.active');
+  if(!activePage)return;
+  const id=activePage.id;
+  if(id==='page-home'&&currentEmpId)renderHome();
+  else if(id==='page-weight'&&currentEmpId)renderWeight();
+  else if(id==='page-ranking')renderRanking();
+  else if(id==='page-admin'&&document.getElementById('admin-unlocked').style.display!=='none')renderAdminList();
+}
+db.ref(DB_PATH).on('value',function(snap){
+  const raw=snap.val();
+  if(raw===null){db.ref(DB_PATH).set(defaultData());return;}
+  appData=normalizeData(raw);
+  if(!appInitialized){appInitialized=true;bootUI();}
+  else refreshCurrentView();
+},function(err){
+  document.getElementById('loading-overlay').innerHTML='<div style="color:var(--danger);font-size:14px;line-height:1.8;">接続エラーが発生しました<br>'+err.message+'<br><br>通信環境を確認して、ページを再読み込みしてください。</div>';
+});
+
 if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js'));}
-initEmpLogin();
 </script>
 </body>
 </html>
