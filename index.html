@@ -131,6 +131,7 @@
     #loading-overlay .spin{width:38px;height:38px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:kg-spin 0.8s linear infinite;}
     @keyframes kg-spin{to{transform:rotate(360deg);}}
     .hidden{display:none!important;}
+    .sync-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:5px;vertical-align:middle;}
   </style>
 </head>
 <body>
@@ -207,7 +208,7 @@
         <div class="card-title">今日の記録</div>
         <div class="two-col">
           <div class="form-row"><label>体重 (kg)</label><input type="number" id="input-weight" step="0.1" min="30" max="200" placeholder="68.5"></div>
-          <div class="form-row"><label>歩数（前日でもOK）</label><input type="number" id="input-steps" step="1" min="0" max="99999" placeholder="8000"></div>
+          <div class="form-row"><label>歩数</label><input type="number" id="input-steps" step="1" min="0" max="99999" placeholder="8000"></div>
         </div>
         <button class="btn btn-primary" onclick="submitTodayRecord()">記録してポイントをゲット！</button>
       </div>
@@ -305,10 +306,12 @@
 </div>
 <div class="toast" id="toast"></div>
 
+<!-- Firebase（全員でデータを共有するためのライブラリ） -->
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.0.2/firebase-database-compat.js"></script>
 
 <script>
+/* ===== Firebase 設定（健体GO / kentai-go）===== */
 const firebaseConfig = {
   apiKey: "AIzaSyAI6gbkf_NPWrc8DFJxGEDR9s7Ir800zzc",
   authDomain: "kentai-go.firebaseapp.com",
@@ -323,16 +326,18 @@ const db = firebase.database();
 const DB_PATH = 'appData';
 
 const DEFAULT_ADMIN_PW='nagi1234';
-let appData = null;
-let appInitialized = false;
+let appData = null;          // 全員共有データ（Firebaseと同期）
+let appInitialized = false;  // 最初の読み込みが終わったか
 let currentEmpId = null;
 
+/* ===== 時間まわり ===== */
 function getJPTime(){return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'}));}
 function getTodayStr(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;}
 function getYM(){const n=getJPTime();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;}
 function updateClock(){const now=getJPTime();const el=document.getElementById('jp-time');if(el)el.textContent=now.toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});}
 updateClock();setInterval(updateClock,60000);
 
+/* ===== ポイント計算 ===== */
 function isDoubleDay(dateStr){const d=parseInt(dateStr.slice(8,10));return d===5||d===15||d===25;}
 function calcDayPoints(rec){let pt=0;const mult=isDoubleDay(rec.date)?2:1;if(rec.weight!=null)pt+=1*mult;if(rec.steps!=null)pt+=1*mult;return pt;}
 function calcStreakBonus(records){if(!records.length)return 0;let bonus=0;let streak=0;let prevDate=null;for(const r of records){if(!prevDate){streak=1;}else{const prev=new Date(prevDate+'T00:00:00');const cur=new Date(r.date+'T00:00:00');const diff=(cur-prev)/(1000*60*60*24);if(diff===1)streak++;else streak=1;}if(streak>0&&streak%7===0)bonus+=5;prevDate=r.date;}return bonus;}
@@ -342,11 +347,14 @@ function calcMonthPoints(emp,ym){if(!emp.dailyRecords||!emp.dailyRecords.length)
 function calcStreak(emp){if(!emp.dailyRecords||!emp.dailyRecords.length)return 0;const sorted=emp.dailyRecords.slice().sort((a,b)=>b.date.localeCompare(a.date));const today=getTodayStr();let streak=0;let checkDate=today;for(const r of sorted){if(r.date===checkDate){streak++;const d=new Date(checkDate+'T00:00:00');d.setDate(d.getDate()-1);checkDate=d.toISOString().slice(0,10);}else if(r.date<checkDate){break;}}return streak;}
 function calcMonthDays(emp,ym){if(!emp.dailyRecords)return 0;return emp.dailyRecords.filter(r=>r.date.startsWith(ym)).length;}
 
+/* ===== データ層（Firebase版）===== */
+/* 初期データ：社員17名を登録済み・パスワード全員 0000 */
 function defaultData(){
   const names=['園田信広','夏山宣明','西谷昌弘','阿部寛','武田将人','田中耕平','大里健太郎','鈴木涼太','佐藤美憲','佐藤洋行','チャンバオチュン','ウェヤンテッテツ','ウィンモー','花山慎治','鈴木里菜','澁谷海武樹','小松優作'];
   const emps=names.map((name,i)=>({id:i+1,name:name,height:null,goal:null,password:'0000',dailyRecords:[],records:[]}));
   return {adminPw:DEFAULT_ADMIN_PW,employees:emps,nextId:names.length+1};
 }
+/* Firebaseから読んだデータの欠けを補う（空配列はFirebaseで消えるため復元） */
 function normalizeData(raw){
   const d=raw||{};
   if(!d.adminPw)d.adminPw=DEFAULT_ADMIN_PW;
@@ -366,10 +374,12 @@ function normalizeData(raw){
   if(!d.nextId)d.nextId=(emps.reduce((m,e)=>Math.max(m,e.id||0),0)||0)+1;
   return d;
 }
+/* 既存コードと同じ感覚で使えるよう、メモリ上のコピーを返す */
 function loadData(){
   if(!appData)return defaultData();
   return JSON.parse(JSON.stringify(appData));
 }
+/* 保存＝Firebaseへ書き込み（全員に共有される） */
 function saveData(d){
   appData=d;
   db.ref(DB_PATH).set(d).catch(e=>showToast('保存に失敗しました: '+e.message,'var(--danger)'));
@@ -404,10 +414,12 @@ function saveEdit(){const id=parseInt(document.getElementById('edit-emp-id').val
 function addEmployee(){const name=document.getElementById('new-emp-name').value.trim();const height=parseFloat(document.getElementById('new-emp-height').value);const goal=parseFloat(document.getElementById('new-emp-goal').value);const pw=document.getElementById('new-emp-pw').value;if(!name){showToast('名前を入力してください','var(--danger)');return;}const data=loadData();if(data.employees.find(e=>e.name===name)){showToast('同じ名前が既にあります','var(--warn)');return;}data.employees.push({id:data.nextId++,name:name,height:isNaN(height)?null:height,goal:isNaN(goal)?null:goal,password:pw,dailyRecords:[],records:[]});saveData(data);document.getElementById('new-emp-name').value='';document.getElementById('new-emp-height').value='';document.getElementById('new-emp-goal').value='';document.getElementById('new-emp-pw').value='';showToast(name+' を追加しました');initEmpLogin();renderAdminList();}
 function deleteEmployee(id){const data=loadData();const emp=data.employees.find(e=>e.id===id);if(!emp)return;if(!confirm(`「${emp.name}」を削除しますか？`))return;data.employees=data.employees.filter(e=>e.id!==id);saveData(data);if(currentEmpId===id)currentEmpId=null;initEmpLogin();renderAdminList();showToast('削除しました');}
 
+/* ===== 起動・Firebase同期 ===== */
 function bootUI(){
   document.getElementById('loading-overlay').classList.add('hidden');
   initEmpLogin();
 }
+/* 他の人の更新が届いたとき、入力中でなければ今の画面を更新 */
 function refreshCurrentView(){
   const ae=document.activeElement;
   if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'))return;
