@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firebase接続テスト</title>
+<style>
+  body{font-family:sans-serif;background:#0f1923;color:#eaf2ff;padding:24px;line-height:1.8;}
+  .box{background:#1a2535;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:20px;margin-bottom:16px;}
+  button{background:#00e5a0;color:#0f1923;border:none;border-radius:8px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;margin:6px 0;width:100%;}
+  .status{font-size:14px;margin-top:8px;padding:10px;border-radius:8px;background:#243044;white-space:pre-wrap;word-break:break-all;}
+  h2{font-size:18px;margin-bottom:12px;}
+  .ok{color:#00e5a0;}
+  .ng{color:#ef476f;}
+</style>
+</head>
+<body>
+<h2>🔧 健体GO Firebase接続テスト</h2>
+
+<div class="box">
+  <div>① 書き込みテスト</div>
+  <button onclick="testWrite()">Firebaseに書き込む</button>
+  <div class="status" id="write-status">ボタンを押してください</div>
+</div>
+
+<div class="box">
+  <div>② 読み込みテスト</div>
+  <button onclick="testRead()">Firebaseから読み込む</button>
+  <div class="status" id="read-status">ボタンを押してください</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAI6gbkf_NPWrc8DFJxGEDR9s7Ir800zzc",
+  authDomain: "kentai-go.firebaseapp.com",
+  databaseURL: "https://kentai-go-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kentai-go",
+  storageBucket: "kentai-go.firebasestorage.app",
+  messagingSenderId: "776657933790",
+  appId: "1:776657933790:web:02f48d8bf519ec9387f94f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.testWrite = async function(){
+  const el = document.getElementById('write-status');
+  el.textContent = '書き込み中...';
+  try {
+    await set(ref(db, 'test/message'), {
+      text: 'こんにちは健体GO',
+      time: new Date().toLocaleString('ja-JP')
+    });
+    el.innerHTML = '<span class="ok">✓ 書き込み成功！</span>';
+  } catch(e){
+    el.innerHTML = '<span class="ng">✗ 失敗: ' + e.message + '</span>';
+  }
+};
+
+window.testRead = async function(){
+  const el = document.getElementById('read-status');
+  el.textContent = '読み込み中...';
+  try {
+    const snapshot = await get(ref(db, 'test/message'));
+    if (snapshot.exists()){
+      const d = snapshot.val();
+      el.innerHTML = '<span class="ok">✓ 読み込み成功！</span>\n' + d.text + '\n（' + d.time + '）';
+    } else {
+      el.innerHTML = '<span class="ng">データがありません。先に①を実行してください。</span>';
+    }
+  } catch(e){
+    el.innerHTML = '<span class="ng">✗ 失敗: ' + e.message + '</span>';
+  }
+};
+</script>
+</body>
+</html>
